@@ -2,25 +2,65 @@
     This module abstracts away the implementation details of the differentiable renderer
     used in this project.
 """
+# useful link: https://pytorch3d.org/docs/renderer_getting_started
 
 import numpy as np
 
 from pytorch3d.renderer import (
     look_at_view_transform,
-    FoVPerspectiveCameras, 
-    PointLights, 
-    DirectionalLights, 
-    Materials, 
+    FoVPerspectiveCameras,
+    
     RasterizationSettings, 
+    MeshRasterizer,
+    
     MeshRenderer, 
-    MeshRasterizer,  
+    
+    HardFlatShader,
     SoftPhongShader,
+
+    PointLights, 
+    DirectionalLights,
+    
     TexturesUV,
-    TexturesVertex
+    TexturesVertex, 
+    
+    Materials
 )
 
+__DEFAULT_RASTERIZER_SETTINGS = RasterizationSettings(
+    image_size = (512, 512), # height then width
+    
+    blur_radius = 0.0, # no blurring effect wanted
+    
+    faces_per_pixel = 1, # how many faces can share a pixel at the same time if there is an overlapping
+    
+    # binning
+    bin_size = None,
+    max_faces_per_bin = None,
+    
+    # perspective
+    perspective_correct = None, # perspective correction for barycentric coordinate computation, here does so if camera uses perspective
+    
+    # clipping
+    clip_barycentric_coords = None, # clips barycentric coords if outside the face
+    z_clip_value = None, # clips depth coords to avoid infinite projections
+    
+    # culling
+    cull_backfaces = False,
+    cull_to_frustum = False
+)
+
+__DEFAULT_SHADER_CLASS = HardFlatShader.__class__
+
 class CamerasFactory:
+    """
+    Factory class for Cameras
+    """
     def __init__(self, device):
+        """
+        Args:
+            device: device used by the cameras
+        """
         self.__device = device
         
     def fov_persp_scs(self, coords, fov, frustrum_depth, degrees: bool =True):
@@ -61,15 +101,44 @@ class CamerasFactory:
         
         return cameras
 
-class RasterizerFactory:
-    def __init__(self, device):
-        self.__device = device
-        
+class Renderer:
+    """
+    Differentiable Renderer class
+    """
+    def __init__(self, 
+                 device, 
+                 cameras, 
+                 rasterization_settings =__DEFAULT_RASTERIZER_SETTINGS,
+                 shader = None):   
+        # rasterizer
+        self.__rasterizer = MeshRasterizer(cameras, rasterization_settings)
+        # shader
+        self.__shader = shader if shader is not None \
+            else __DEFAULT_SHADER_CLASS(
+                device = device, 
+                cameras = cameras, 
+                lights = PointLights(
+                    ambient_color = (0.5, 0.5, 0.5),
+                    #diffuse_color = (1, 1, 1),
+                    #specular_color = (1, 1, 1),
+                    location = (0, 1, 0),
+                    device = device
+                    ), 
+                materials = None,
+                blend_params= None
+            )
+        # renderer
+        self.__renderer = MeshRenderer(rasterizer=self.__rasterizer, shader=self.__shader)
+        self.__renderer.to(device)
     
+    def render(self, mesh):
+        """
+        Renders a mesh
 
-class Renderer:    
-    def __init__(self, rasterizer, shader):
-        self.__renderer = MeshRenderer(rasterizer=rasterizer, shader=shader)
-        
-    def apply(self, mesh):
+        Args:
+            mesh: mesh to be rendered.
+
+        Returns:
+            (Image): the resulting image.
+        """
         return self.__renderer(mesh)
