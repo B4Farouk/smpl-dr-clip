@@ -76,7 +76,10 @@ class CamerasFactory:
         
         return cameras
 
-class Renderer:
+class Renderer:    
+    """
+    Differentiable Renderer class
+    """
     __DEFAULT_RASTERIZER_SETTINGS = RasterizationSettings(
     image_size = (512, 512), # height then width
     
@@ -99,11 +102,7 @@ class Renderer:
     cull_backfaces = False,
     cull_to_frustum = False
     )
-    __DEFAULT_SHADER_CLASS = HardFlatShader.__class__
     
-    """
-    Differentiable Renderer class
-    """
     def __init__(self, 
                  device, 
                  cameras, 
@@ -116,7 +115,7 @@ class Renderer:
             self.__rasterizer = MeshRasterizer(cameras, rasterization_settings)
         # shader
         self.__shader = shader if shader is not None \
-            else Renderer.__DEFAULT_SHADER_CLASS(
+            else HardFlatShader(
                 device = device, 
                 cameras = cameras, 
                 lights = PointLights(
@@ -127,7 +126,7 @@ class Renderer:
                     device = device
                     ), 
                 materials = None,
-                blend_params= None
+                blend_params = None
             )
         # renderer
         self.__renderer = MeshRenderer(rasterizer=self.__rasterizer, shader=self.__shader)
