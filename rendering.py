@@ -76,7 +76,7 @@ class CamerasFactory:
         
         return cameras
 
-class Renderer:    
+class Renderer:
     """
     Differentiable Renderer class
     """
@@ -118,13 +118,14 @@ class Renderer:
             else HardFlatShader(
                 device = device, 
                 cameras = cameras, 
-                lights = PointLights(
-                    ambient_color = (0.5, 0.5, 0.5),
-                    #diffuse_color = (1, 1, 1),
-                    #specular_color = (1, 1, 1),
-                    location = (0, 1, 0),
-                    device = device
-                    ), 
+                #lights = PointLights(
+                #    ambient_color = (0.5, 0.5, 0.5),
+                #    diffuse_color = (1, 1, 1),
+                #    specular_color = (1, 1, 1),
+                #    location = (0, 1, 0),
+                #   device = device
+                #   ),
+                light = None,
                 materials = None,
                 blend_params = None
             )
