@@ -27,31 +27,6 @@ from pytorch3d.renderer import (
     Materials
 )
 
-__DEFAULT_RASTERIZER_SETTINGS = RasterizationSettings(
-    image_size = (512, 512), # height then width
-    
-    blur_radius = 0.0, # no blurring effect wanted
-    
-    faces_per_pixel = 1, # how many faces can share a pixel at the same time if there is an overlapping
-    
-    # binning
-    bin_size = None,
-    max_faces_per_bin = None,
-    
-    # perspective
-    perspective_correct = None, # perspective correction for barycentric coordinate computation, here does so if camera uses perspective
-    
-    # clipping
-    clip_barycentric_coords = None, # clips barycentric coords if outside the face
-    z_clip_value = None, # clips depth coords to avoid infinite projections
-    
-    # culling
-    cull_backfaces = False,
-    cull_to_frustum = False
-)
-
-__DEFAULT_SHADER_CLASS = HardFlatShader.__class__
-
 class CamerasFactory:
     """
     Factory class for Cameras
@@ -102,19 +77,46 @@ class CamerasFactory:
         return cameras
 
 class Renderer:
+    __DEFAULT_RASTERIZER_SETTINGS = RasterizationSettings(
+    image_size = (512, 512), # height then width
+    
+    blur_radius = 0.0, # no blurring effect wanted
+    
+    faces_per_pixel = 1, # how many faces can share a pixel at the same time if there is an overlapping
+    
+    # binning
+    bin_size = None,
+    max_faces_per_bin = None,
+    
+    # perspective
+    perspective_correct = None, # perspective correction for barycentric coordinate computation, here does so if camera uses perspective
+    
+    # clipping
+    clip_barycentric_coords = None, # clips barycentric coords if outside the face
+    z_clip_value = None, # clips depth coords to avoid infinite projections
+    
+    # culling
+    cull_backfaces = False,
+    cull_to_frustum = False
+    )
+    __DEFAULT_SHADER_CLASS = HardFlatShader.__class__
+    
     """
     Differentiable Renderer class
     """
     def __init__(self, 
                  device, 
                  cameras, 
-                 rasterization_settings =__DEFAULT_RASTERIZER_SETTINGS,
-                 shader = None):   
+                 rasterization_settings = None,
+                 shader = None):
         # rasterizer
-        self.__rasterizer = MeshRasterizer(cameras, rasterization_settings)
+        if rasterization_settings is None:
+            self.__rasterizer = MeshRasterizer(cameras, Renderer.__DEFAULT_RASTERIZER_SETTINGS)
+        else:
+            self.__rasterizer = MeshRasterizer(cameras, rasterization_settings)
         # shader
         self.__shader = shader if shader is not None \
-            else __DEFAULT_SHADER_CLASS(
+            else Renderer.__DEFAULT_SHADER_CLASS(
                 device = device, 
                 cameras = cameras, 
                 lights = PointLights(
