@@ -81,7 +81,7 @@ class Renderer:
     Differentiable Renderer class
     """
     __DEFAULT_RASTERIZER_SETTINGS = RasterizationSettings(
-    image_size = (512, 512), # height then width
+    image_size = (244, 244), # height then width
     
     blur_radius = 0.0, # no blurring effect wanted
     
