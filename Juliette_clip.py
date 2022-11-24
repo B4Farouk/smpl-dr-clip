@@ -7,11 +7,11 @@ from matplotlib import pyplot as plt
 import torch
 #from pkg_resources import packaging
 
-import Juliette_clip
+import clip
 
 def get_cosine_similarity(img_path, texts):
 
-    model, preprocess = Juliette_clip.load("ViT-B/32") #choose the model ViT-B/32
+    model, preprocess = clip.load("ViT-B/32") #choose the model ViT-B/32
     model.cuda().eval()
 
     # Load and preprocess the images
@@ -24,7 +24,7 @@ def get_cosine_similarity(img_path, texts):
     image_input = torch.tensor(np.stack(preprocessed_images)).cuda()
 
     # Tokenize the texts
-    text_tokens = Juliette_clip.tokenize(["This is " + desc for desc in texts]).cuda()
+    text_tokens = clip.tokenize(["This is " + desc for desc in texts]).cuda()
 
     # Building features
     with torch.no_grad():
