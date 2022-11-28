@@ -17,7 +17,7 @@ class TexturesFactory:
     def __init__(self, device):
         self.__device = device
     
-    def from_nfaces(self, n, color):
+    def with_color(self, n, color):
         # check input
         assert n > 0 and len(color) == 3
         
@@ -30,7 +30,7 @@ class TexturesFactory:
         textures.to(self.__device)
         return textures
         
-    def from_face_colors(self, face_colors):
+    def with_colors(self, face_colors):
         # check input
         assert face_colors is not None and face_colors.shape[1] == 3
         
@@ -45,7 +45,7 @@ class TexturesFactory:
 class SMPL:
     __DEFAULT_MODEL = SMPL_Layer(model_root='/content/project')
     
-    def __init__(self, device, model):
+    def __init__(self, model, device):
         self.__device = device if device is not None else torch.device("cpu")
         self.__model = model if model is not None else SMPL.__DEFAULT_MODEL
         
