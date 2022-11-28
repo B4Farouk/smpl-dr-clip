@@ -45,7 +45,7 @@ class TexturesFactory:
 class SMPL:
     __DEFAULT_MODEL = SMPL_Layer(model_root='/content/project')
     
-    def __init__(self, device, model, textures):
+    def __init__(self, device, model):
         self.__device = device if device is not None else torch.device("cpu")
         self.__model = model if model is not None else SMPL.__DEFAULT_MODEL
         
