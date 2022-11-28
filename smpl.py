@@ -55,15 +55,19 @@ class SMPL:
         
     # theta is the pose parameter of shape (1,72) 
     # beta is the shape parameter of shape (1,10)
-    def meshes(self, betas, thetas, textures):
+    def verts(self, betas, thetas):
         # move the model to the device
         self.__model.to(self.__device)
-        # create the vertices and joints of the mesh
-        vertices, joints = self.__model.forward(th_pose_axisang=thetas, th_betas=betas, th_trans=None)
+        # create the vertices of the mesh
+        vertices, _ = self.__model.forward(th_pose_axisang=thetas, th_betas=betas, th_trans=None)
+        faces = self.__model.th_faces[None, :]
+        return vertices, faces
+    
+    def meshes_from(self, vertices, faces, textures):
         # create the mesh
         mesh = Meshes(
             verts=vertices, 
-            faces=self.__model.th_faces[None, :],
+            faces=faces,
             textures=textures)
         return mesh
         
