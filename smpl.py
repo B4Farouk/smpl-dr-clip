@@ -55,7 +55,7 @@ class SMPL:
         
     # theta is the pose parameter of shape (1,72) 
     # beta is the shape parameter of shape (1,10)
-    def verts(self, betas, thetas):
+    def verts_and_faces(self, betas, thetas):
         # move the model to the device
         self.__model.to(self.__device)
         # create the vertices of the mesh
