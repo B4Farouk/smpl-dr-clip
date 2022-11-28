@@ -17,25 +17,27 @@ class TexturesFactory:
     def __init__(self, device):
         self.__device = device
     
-    def with_face_color(self, n_faces, face_color):
+    def from_facecolor(self, nfaces, facecolor):
         # check input
-        assert n_faces > 0 and len(face_color) == 3
+        assert nfaces > 0 and len(facecolor) == 3
         
         # create an atlas
-        face_colors = torch.Tensor(face_color, device=self.__device) * torch.ones((n, 3), device=self.__device)
-        atlas = face_colors[None, :, None, None, :] # (#meshs=1, #faces, ?=1, 1=1, RGB_colors)
+        facecolor = torch.Tensor(facecolor)
+        white = torch.ones((nfaces, 3))
+        facecolors = facecolor * white
+        atlas = facecolors[None, :, None, None, :] # (#meshs=1, #faces, ?=1, 1=1, RGB_colors)
                 
         # create a texture
         textures = TexturesAtlas(atlas=atlas)
         textures.to(self.__device)
         return textures
         
-    def with_face_colors(self, face_colors):
+    def from_facecolors(self, facecolors):
         # check input
-        assert face_colors is not None and face_colors.shape[1] == 3
+        assert facecolors is not None and facecolors.shape[1] == 3
         
         # create an atlas
-        atlas = face_colors[None, :, None, None, :] # (#meshs=1, #faces, ?=1, 1=1, RGB_colors)
+        atlas = facecolors[None, :, None, None, :] # (#meshs=1, #faces, ?=1, 1=1, RGB_colors)
         
         # create a texture
         textures = TexturesAtlas(atlas=atlas)
