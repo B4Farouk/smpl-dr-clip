@@ -48,28 +48,30 @@ class SMPL:
     __DEFAULT_MODEL = SMPL_Layer(model_root='/content/project')
     
     def __init__(self, model, device):
-        self.__device = device if device is not None else torch.device("cpu")
+        device = device if device is not None else torch.device("cpu")
         self.__model = model if model is not None else SMPL.__DEFAULT_MODEL
-        
-    def to(self, device):
-        assert device is not None
         self.__model.to(device)
-        
+             
+    @staticmethod
+    def mesh_from(vertices, faces, texture):
+        return Meshes(
+            verts=vertices, 
+            faces=faces,
+            textures=texture)
+     
     # theta is the pose parameter of shape (1,72) 
     # beta is the shape parameter of shape (1,10)
-    def verts_and_faces(self, betas, thetas):
-        # move the model to the device
-        self.__model.to(self.__device)
+    def verts_and_faces(self, beta, theta):
         # create the vertices of the mesh
-        vertices, _ = self.__model.forward(th_pose_axisang=thetas, th_betas=betas, th_trans=None)
+        vertices, _ = self.__model.forward(th_pose_axisang=theta, th_betas=beta, th_trans=None)
         faces = self.__model.th_faces[None, :]
         return vertices, faces
     
-    def meshes_from(self, vertices, faces, textures):
-        # create the mesh
-        mesh = Meshes(
-            verts=vertices, 
-            faces=faces,
-            textures=textures)
+    def mesh(self, beta, theta, txmapping):
+        verts, faces = self.verts_and_faces(beta, theta)
+        texture = txmapping(faces) # a function that creates a texture from faces
+        mesh = SMPL.mesh_from(
+            vertices=verts, 
+            faces=faces, 
+            texture=texture)
         return mesh
-        
