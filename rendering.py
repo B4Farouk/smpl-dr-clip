@@ -20,13 +20,13 @@ from pytorch3d.renderer import (
 
     PointLights, 
     DirectionalLights,
+    Materials,
     
+    TexturesAtlas,
     TexturesUV,
-    TexturesVertex, 
-    
-    Materials
+    TexturesVertex
 )
-
+    
 class CamerasFactory:
     """
     Factory class for Cameras
