@@ -125,7 +125,7 @@ class Renderer:
                 #    location = (0, 1, 0),
                 #   device = device
                 #   ),
-                light = None,
+                lights = None,
                 materials = None,
                 blend_params = None
             )
