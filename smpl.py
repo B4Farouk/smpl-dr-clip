@@ -13,6 +13,12 @@ from pytorch3d.renderer import (
     TexturesVertex
 )
 
+def mesh_from(vertices, faces, texture):
+    return Meshes(
+        verts=vertices, 
+        faces=faces,
+        textures=texture)
+
 class TexturesFactory:
     def __init__(self, device):
         self.__device = device
@@ -52,13 +58,6 @@ class SMPL:
         self.__model = model if model is not None else SMPL.__DEFAULT_MODEL
         self.__model.to(device)
              
-    @staticmethod
-    def mesh_from(vertices, faces, texture):
-        return Meshes(
-            verts=vertices, 
-            faces=faces,
-            textures=texture)
-     
     # theta is the pose parameter of shape (1,72) 
     # beta is the shape parameter of shape (1,10)
     def verts_and_faces(self, beta, theta):
