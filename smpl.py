@@ -69,7 +69,7 @@ class SMPL:
     def mesh(self, beta, theta, txmapping):
         verts, faces = self.verts_and_faces(beta, theta)
         texture = txmapping(faces) # a function that creates a texture from faces
-        mesh = SMPL.mesh_from(
+        mesh = mesh_from(
             vertices=verts, 
             faces=faces, 
             texture=texture)
