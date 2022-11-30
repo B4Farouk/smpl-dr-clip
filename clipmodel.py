@@ -13,6 +13,8 @@ class CLIPmodel:
     def preprocess_images(self, images):
         #prep_images = None
         #if torch.is_tensor(images)
+        if torch.is_tensor(images):
+            return preprocess(image).unsqueeze(0)
         prep_images = (self.preprocess(img) for img in images)
         return torch.tensor(np.stack(prep_images)).cuda()
 
