@@ -11,6 +11,8 @@ class CLIPmodel:
         self.model.cuda().eval()
 
     def preprocess_images(self, images):
+        #prep_images = None
+        #if torch.is_tensor(images)
         prep_images = (self.preprocess(img) for img in images)
         return torch.tensor(np.stack(prep_images)).cuda()
 
@@ -39,7 +41,7 @@ class CLIPmodel:
         return similarity
     
     def get_cosine_similarity(self, image, text):
-        return self.get_cosine_similarities(list(image), list(text))[0]
+        return self.get_cosine_similarities(list(image), list(text))[0][0]
 
 
     def plot_cosine_similarity(similarity, images, texts, fig_size = (20, 14)):
