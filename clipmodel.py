@@ -20,7 +20,7 @@ class CLIPmodel:
     def get_features(self, image_tensor, tokenized_texts):
         return (self.model.encode_image(image_tensor).float(), self.model.encode_text(tokenized_texts).float())
 
-    def get_cosine_similarity(self, images, texts):
+    def get_cosine_similarities(self, images, texts):
         # Preprocess the images and tokenize the texts
         prep_images_tensor = self.preprocess_images(images)
         tokenized_texts = self.tokenize_texts(texts)
@@ -37,6 +37,9 @@ class CLIPmodel:
         similarity = text_features.cpu().numpy() @ image_features.cpu().numpy().T
 
         return similarity
+    
+    def get_cosine_similarity(self, image, text):
+        return self.get_cosine_similarities(list(image), list(text))[0]
 
 
     def plot_cosine_similarity(similarity, images, texts, fig_size = (20, 14)):
