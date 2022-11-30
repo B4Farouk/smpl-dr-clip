@@ -15,7 +15,7 @@ class CLIPmodel:
         return torch.tensor(np.stack(prep_images)).cuda()
     
     def preprocess_tensor(self, tensor_image):
-        return self.preprocess(image).unsqueeze(0)
+        return self.preprocess(tensor_image).unsqueeze(0)
 
     def tokenize_texts(self, texts):
         return clip.tokenize(["This is " + desc for desc in texts]).cuda()
