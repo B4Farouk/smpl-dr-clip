@@ -4,13 +4,11 @@
 import torch.nn as nn
 import torch.optim as optim
 
-class Trainer:
-    def __init__(self, model, pose, shape):
-        assert len(pose) == 72 and len(shape) == 10
-        
+class OptimEnv:
+    def __init__(self, model, params, lr=1, betas=(0.9, 0.999)):
         self.__model = model
-        self.__params = [pose, shape]
-        self.__optimizer = optim.Adam(params=self.__params, lr=1, amsgrad=True)
+        self.__params = params
+        self.__optimizer = optim.Adam(params=self.__params, lr=lr, betas=betas, amsgrad=True)
         self.__loss_fn = nn.MSELoss()
         
     def set_optimizer(self, optimizer):
@@ -29,3 +27,13 @@ class Trainer:
         loss.backward()
         self.__optimizer.step()
     
+    def optimize(self, pose, shape, prompt, n_passes=1000, verbose=True):
+        for n in range(n_passes):
+            loss = self.forward(pose, shape, prompt)
+            self.backward(loss)
+            
+            if verbose:
+                if n % 100 == 0:
+                    print("iteration %d: loss = %.5f"%(n, loss.item()))
+                    
+        return pose, shape

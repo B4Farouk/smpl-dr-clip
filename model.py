@@ -4,8 +4,8 @@
 
 def build_model(smpl, renderer, clip_model):
     def smpl_fn(pose, shape):
-        vertices, _ = smpl(pose, shape)
-        return vertices
+        mesh = smpl.mesh(theta=pose, beta=shape)
+        return mesh
     
     def renderer_fn(mesh):
         return renderer.render(mesh)
