@@ -17,6 +17,9 @@ class CLIPmodel:
             return preprocess(image).unsqueeze(0)
         prep_images = (self.preprocess(img) for img in images)
         return torch.tensor(np.stack(prep_images)).cuda()
+    
+    def preprocess_tensor(self, tensor_image):
+        return preprocess(image).unsqueeze(0)
 
     def tokenize_texts(self, texts):
         return clip.tokenize(["This is " + desc for desc in texts]).cuda()
@@ -42,8 +45,22 @@ class CLIPmodel:
 
         return similarity
     
-    def get_cosine_similarity(self, image, text):
-        return self.get_cosine_similarities(list(image), list(text))[0][0]
+    def get_cosine_similarity_tensor(self, image_tensor, text):# Preprocess the images and tokenize the texts
+        prep_images_tensor = self.preprocess_tensor(image_tensor)
+        tokenized_texts = clip.tokenize(["This is " +text]).cuda()
+
+        # Extract features
+        with torch.no_grad():
+            image_features, text_features = self.get_features(prep_images_tensor, tokenized_texts)
+
+        # Normalize the features
+        image_features /= image_features.norm(dim=-1, keepdim=True)
+        text_features /= text_features.norm(dim=-1, keepdim=True)
+
+        # Compute the cosine similarity
+        similarity = text_features.cpu().numpy() @ image_features.cpu().numpy().T
+
+        return similarity
 
 
     def plot_cosine_similarity(similarity, images, texts, fig_size = (20, 14)):
