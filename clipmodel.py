@@ -65,6 +65,9 @@ class CLIPmodel:
         
         return similarity[0][0]
     
+    def get_cosine_difference(self, image, text):
+        return 1 - self.get_cosine_similarity(image, text)
+    
     """
     def get_cosine_similarity(self, image, text):# Get cosine sim for one image and one text
         if torch.is_tensor(image):
