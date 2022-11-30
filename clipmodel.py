@@ -27,7 +27,7 @@ class CLIPwrapper:
         self.__model.train()
 
     def preproc_image(self, image):
-        preproc_img = self.preprocess(image)
+        preproc_img = self.__preprocess(image)
         return torch.tensor(np.stack(preproc_img)).to(self.__device)
 
     def tokenize_prompt(self, prompt):
