@@ -13,7 +13,7 @@ def mesh_from(vertices, faces, texture):
         faces=faces,
         textures=texture)
 
-class SMPL:
+class SMPLwrapper:
     __DEFAULT_MODEL = SMPL_Layer(model_root='/content/project')
     
     def __init__(self, model, txmapping, device):

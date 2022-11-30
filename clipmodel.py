@@ -7,7 +7,7 @@ from scipy.spatial.distance import cosine
 
 from matplotlib import pyplot as plt
 
-class CLIP:
+class CLIPwrapper:
     __DEFAULT_MODEL_NAME = "ViT-B/32"
     def __init__(self, model_name, device):
         # save device
@@ -40,7 +40,7 @@ class CLIP:
         prompt_feat_vect = self.__model.encode_text(tokenized_prompt).float()
         return prompt_feat_vect
 
-    def cos_dists(self, image, prompt):
+    def cos_dist(self, image, prompt):
         # preprocess the images and tokenize the prompts
         preproc_images    = self.preproc_image(image)
         tokenized_prompts = self.tokenize_prompt(prompt)
