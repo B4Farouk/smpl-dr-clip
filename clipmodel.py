@@ -1,4 +1,7 @@
 import torch
+import torchvision
+import torchvision.transforms as T
+
 import clip
 
 import numpy as np
@@ -41,8 +44,10 @@ class CLIPmodel:
 
         return similarity
     
-    def get_cosine_similarity_tensor(self, image_tensor, text):# Preprocess the images and tokenize the texts
-        prep_images_tensor = self.preprocess_tensor(image_tensor)
+    def get_cosine_similarity(self, image, text):# Get cosine sim for one image and one text
+        if torch.is_tensor(image):
+            image = T.ToPILImage(image)
+        prep_images_tensor = torch.tensor(np.stack(self.preprocess(image))).cuda()
         tokenized_texts = clip.tokenize(["This is " +text]).cuda()
 
         # Extract features
