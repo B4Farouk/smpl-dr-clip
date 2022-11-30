@@ -21,7 +21,7 @@ class SMPLwrapper:
         
         self.__txmapping = txmapping
         
-        self.__model = model if model is not None else SMPL.__DEFAULT_MODEL
+        self.__model = model if model is not None else SMPLwrapper.__DEFAULT_MODEL
         self.__model.to(device)
                  
     # theta is the pose parameter of shape (1,72) 
