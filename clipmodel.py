@@ -46,7 +46,7 @@ class CLIPmodel:
     
     def get_cosine_similarity(self, image, text):# Get cosine sim for one image and one text
         if torch.is_tensor(image):
-            image = T.ToPILImage(image)
+            image = T.ToPILImage()(image)
         prep_images_tensor = torch.tensor(np.stack(self.preprocess(image))).cuda()
         tokenized_texts = clip.tokenize(["This is " +text]).cuda()
 
