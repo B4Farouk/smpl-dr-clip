@@ -5,8 +5,8 @@ import torch.nn as nn
 import torch.optim as optim
 
 def cos_dist(image_embedding, prompt_embedding):
-        # Compute the cosine similarity
-        cos_sim = (image_embedding.cpu().numpy() @ prompt_embedding.cpu().numpy().T).item()
+        # Compute the cosine similarity as a tensor
+        cos_sim = image_embedding.cpu() @ prompt_embedding.cpu().T
         return  1 - cos_sim
 
 class OptimEnv:
