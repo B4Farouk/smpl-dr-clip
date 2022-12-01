@@ -2,7 +2,7 @@ import torch
 import torchvision
 import torchvision.transforms as T
 
-import clip
+import clip_copy
 
 import numpy as np
 from matplotlib import pyplot as plt
