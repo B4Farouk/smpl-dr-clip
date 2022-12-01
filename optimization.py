@@ -4,12 +4,18 @@
 import torch.nn as nn
 import torch.optim as optim
 
+def cos_dist(image_embedding, prompt_embedding):
+        # Compute the cosine similarity
+        cos_sim = (image_embedding.cpu().numpy() @ prompt_embedding.cpu().numpy().T).item()
+        return  1 - cos_sim
+
 class OptimEnv:
+    __DEFAULT_LOSS_FN = cos_dist
     def __init__(self, model, params, lr=1, betas=(0.9, 0.999)):
         self.__model = model
         self.__params = params
         self.__optimizer = optim.Adam(params=self.__params, lr=lr, betas=betas, amsgrad=True)
-        self.__loss_fn = nn.MSELoss()
+        self.__loss_fn = OptimEnv.__DEFAULT_LOSS_FN
         
     def set_optimizer(self, optimizer):
         self.__optimizer = optimizer
