@@ -47,8 +47,7 @@ class CLIPmodel:
         return similarity
     
     
-    # Get cosine sim for one image (type Pil) and one text (str)
-    def get_cosine_similarity(self, image, text):
+    def get_image_text_features(self, image, text):
         prep_images_tensor = torch.tensor(self.preprocess(image)).cuda().unsqueeze(0)
         tokenized_texts = clip.tokenize(["This is " +text]).cuda()
 
@@ -60,9 +59,15 @@ class CLIPmodel:
         image_features /= image_features.norm(dim=-1, keepdim=True)
         text_features /= text_features.norm(dim=-1, keepdim=True)
 
+        return image_features, text_features
+
+
+    # Get cosine sim for one image (type Pil) and one text (str)
+    def get_cosine_similarity(self, image, text):
+        image_features, text_features = self.get_image_text_features(image, text)
+
         # Compute the cosine similarity
         similarity = text_features.cpu().numpy() @ image_features.cpu().numpy().T
-        
         return similarity[0][0]
     
     def get_cosine_difference(self, image, text):

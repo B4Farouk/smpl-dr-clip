@@ -17,9 +17,12 @@ def build_model(smpl, renderer, clip_model):
         image = torch.permute(image, (2, 0, 1))
         image = image[:3,:,:]
         
+        image_feature, prompt_feature = clip_model.get_image_text_features(image, prompt)
+        return image_feature, prompt_feature
+
         # For one text and one image
-        similarity = clip_model.get_cosine_similarity(image, prompt)
-        return similarity
+        #similarity = clip_model.get_cosine_similarity(image, prompt)
+        #return similarity
     
     def model(pose, shape, prompt):
         return clip_fn(renderer_fn(smpl_fn(pose, shape)), prompt)
