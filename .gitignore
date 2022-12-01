@@ -9,3 +9,6 @@
 
 # jupyter notebook
 .ipynb_checkpoints
+
+# copied code
+*_copiedcode*
