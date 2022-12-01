@@ -19,7 +19,7 @@ def build_model(smpl, renderer, clip_model):
         
         # For one text and one image
         similarity = clip_model.get_cosine_similarity(image, prompt)
-        return similarity[0][0]
+        return similarity
     
     def model(pose, shape, prompt):
         return clip_fn(renderer_fn(smpl_fn(pose, shape)), prompt)
