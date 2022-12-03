@@ -1,7 +1,9 @@
 import torch
 import clip
 
-from torchvision.transforms import Compose, Normalize
+from torchvision.transforms import Normalize
+
+from debug import info_str
 
 class CLIPwrapper:
     __DEFAULT_MODEL_NAME = "ViT-B/32"
@@ -37,12 +39,15 @@ class CLIPwrapper:
         return image_t
     
     def proc_image_t(self, img_t):
+        info_str(img_t)
         # from (1, W, H, 4) to (W, H, 4)
         img_t = img_t.squeeze()
         # get rgb channels: result is (3, W, H)
         img_t = CLIPwrapper._rgb_channels_t(img_t)
         # apply custom image preprocessing
-        return CLIPwrapper.__IMAGE_TRANSFORM(img_t)
+        transformed_img_t = CLIPwrapper.__IMAGE_TRANSFORM(img_t)
+        info_str(transformed_img_t)
+        return transformed_img_t
     
     def proc_image_embedding(self, proc_img_t):
         img_emb = self.__model.encode_image(proc_img_t)
@@ -67,9 +72,9 @@ class CLIPwrapper:
         prompt_tk = self.tokenize_prompt(prompt)
         return self.prompt_tk_embedding(prompt_tk)
     
-    ###################
-    # JOINT FUNCTIONS
-    ###################    
+    #####################################################
+    # IMAGE/IMAGE, PROMPT/PROMPT, IMAGE/PROMPT FUNCTIONS
+    #####################################################    
         
     def joint_embedding(self, img_t, prompt):
         return self.image_embedding(img_t), self.prompt_embedding(prompt)
