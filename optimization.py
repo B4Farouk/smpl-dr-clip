@@ -1,9 +1,14 @@
 """
     This module regroups our functions and classes used to train the model
 """
+import torch
 import torch.nn as nn
 import torch.optim as optim
 
+def init_weights(device):
+    pose  = torch.zeros(1, 72, requires_grad=True, device=device) # theta
+    shape = torch.zeros(1, 10, requires_grad=True, device=device) # beta
+    return pose, shape
 
 class OptimEnv:
     __DEFAULT_SIM_FN  = nn.CosineSimilarity(dim=1, eps=1e-12)
