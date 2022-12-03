@@ -5,6 +5,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
+import numpy as np
+
 def init_weights(device):
     pose  = torch.zeros((1, 72), requires_grad=True, device=device) # theta
     shape = torch.ones((1, 10), requires_grad=True, device=device) # beta
@@ -36,13 +38,15 @@ class OptimEnv:
         loss.backward(retain_graph=True)
         self.__optimizer.step()
     
-    def optimize(self, pose, shape, n_passes=1000, verbose=True):
+    def optimize(self, pose, shape, n_passes=1000, track_loss=True, every_npasses=50):
+        if track_loss:
+            tracked_losses = np.array([])
+
         for n in range(n_passes):
             loss = self.forward(pose, shape)
             self.backward(loss)
             
-            if verbose:
-                if n % 100 == 0:
-                    print("iteration %d: loss = %.5f"%(n, loss.item()))
+            if track_loss and n % every_npasses == 0:
+                tracked_losses = np.append(tracked_losses, loss.item())
                     
-        return pose, shape
+        return pose, shape, tracked_losses
