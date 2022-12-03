@@ -4,13 +4,9 @@
 import torch.nn as nn
 import torch.optim as optim
 
-def cos_dist(image_embedding, prompt_embedding):
-        # Compute the cosine similarity as a tensor
-        cos_sim = image_embedding.cpu() @ prompt_embedding.cpu().T
-        return  1 - cos_sim
 
 class OptimEnv:
-    __DEFAULT_LOSS_FN = cos_dist
+    __DEFAULT_LOSS_FN = nn.CosineSimilarity(dim=1, eps=1e-12)
     def __init__(self, model, params, lr=1, betas=(0.9, 0.999)):
         self.__model = model
         self.__params = params
@@ -24,8 +20,8 @@ class OptimEnv:
         self.__loss_fn = loss_fn
     
     def forward(self, pose, shape, prompt):
-        image_score, prompt_score = self.__model(pose, shape, prompt)
-        loss = self.__loss_fn(image_score, prompt_score)
+        image_embedding, prompt_embedding = self.__model(pose, shape, prompt)
+        loss = self.__loss_fn(image_embedding, prompt_embedding)
         return loss
         
     def backward(self, loss):
