@@ -6,15 +6,15 @@ import torch.nn as nn
 import torch.optim as optim
 
 def init_weights(device):
-    pose  = torch.zeros(1, 72, requires_grad=True, device=device) # theta
-    shape = torch.zeros(1, 10, requires_grad=True, device=device) # beta
+    pose  = torch.zeros((1, 72), requires_grad=True, device=device) # theta
+    shape = torch.ones((1, 10), requires_grad=True, device=device) # beta
     return pose, shape
 
 class OptimEnv:
-    __DEFAULT_SIM_FN  = nn.CosineSimilarity(dim=1, eps=1e-12)
+    __DEFAULT_SIM_FN  = nn.CosineSimilarity(dim=1, eps=1e-8)
     __DEFAULT_LOSS_FN = lambda img_emb, prompt_emb: 1 - OptimEnv.__DEFAULT_SIM_FN(img_emb, prompt_emb)
     
-    def __init__(self, model, params, lr=1, betas=(0.9, 0.999)):
+    def __init__(self, model, params, lr=1e-3, betas=(0.9, 0.999)):
         self.__model = model
         self.__params = params
         self.__optimizer = optim.Adam(params=self.__params, lr=lr, betas=betas)#, amsgrad=True)
