@@ -17,7 +17,7 @@ class OptimEnv:
     def __init__(self, model, params, lr=1, betas=(0.9, 0.999)):
         self.__model = model
         self.__params = params
-        self.__optimizer = optim.Adam(params=self.__params, lr=lr, betas=betas, amsgrad=True)
+        self.__optimizer = optim.Adam(params=self.__params, lr=lr, betas=betas)#, amsgrad=True)
         self.__loss_fn = OptimEnv.__DEFAULT_LOSS_FN
         
     def set_optimizer(self, optimizer):

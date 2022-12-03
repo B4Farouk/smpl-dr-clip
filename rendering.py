@@ -56,7 +56,7 @@ class CamerasFactory:
         # radius > 0
         # elevation in [-90°, 90°]
         # azimuthal angle in [-180°, 180°] or [0°, 360°]
-        radius, elev, azim = coords
+        radius, azim, elev = coords
         
         # computes coordinate transforms from WCS to VCS
         rotation, translation = look_at_view_transform(dist=radius, elev=elev, azim=azim, degrees=degrees)
