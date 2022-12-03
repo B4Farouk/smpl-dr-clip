@@ -3,8 +3,6 @@ import clip
 
 from torchvision.transforms import Normalize
 
-from debug import info_str
-
 class CLIPwrapper:
     __DEFAULT_MODEL_NAME = "ViT-B/32"
     __IMAGE_TRANSFORM = Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711))
