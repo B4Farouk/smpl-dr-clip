@@ -48,6 +48,7 @@ class CLIPwrapper:
         return transformed_img_t
     
     def proc_image_embedding(self, proc_img_t):
+        proc_img_t = torch.unsqueeze(proc_img_t, 0)
         img_emb = self.__model.encode_image(proc_img_t)
         return img_emb
     
