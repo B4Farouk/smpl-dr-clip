@@ -44,6 +44,7 @@ class CLIPwrapper:
         img_t = img_t.squeeze()
         # get rgb channels: result is (3, W, H)
         img_t = CLIPwrapper._rgb_channels_t(img_t)
+        info_str(img_t)
         # apply custom image preprocessing
         transformed_img_t = CLIPwrapper.__IMAGE_TRANSFORM(img_t)
         info_str(transformed_img_t)
