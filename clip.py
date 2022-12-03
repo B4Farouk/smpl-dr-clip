@@ -1,7 +1,7 @@
 import torch
 import clip
 
-from torchvision import Compose, Normalize
+from torchvision.transforms import Compose, Normalize
 
 class CLIPwrapper:
     __DEFAULT_MODEL_NAME = "ViT-B/32"
