@@ -31,23 +31,20 @@ class CLIPwrapper:
     ###################
     
     @staticmethod
-    def _rgb_channels_t(image_t):
+    def _rgb_channels_t(img_t):
         # remove the alpha component: from (W, H, 4) to (W, H, 3) 
-        image_t = image_t[:,:,:3] 
+        img_t = img_t[:,:,:3] 
         # create RGB channels: from (W, H, 3) to (3, W, H)
-        image_t = torch.permute(image_t, (2, 0, 1))
-        return image_t
+        img_t = torch.permute(img_t, (2, 0, 1))
+        return img_t
     
     def proc_image_t(self, img_t):
-        info_str(img_t)
         # from (1, W, H, 4) to (W, H, 4)
         img_t = img_t.squeeze()
         # get rgb channels: result is (3, W, H)
         img_t = CLIPwrapper._rgb_channels_t(img_t)
-        info_str(img_t)
         # apply custom image preprocessing
         transformed_img_t = CLIPwrapper.__IMAGE_TRANSFORM(img_t)
-        info_str(transformed_img_t)
         return transformed_img_t
     
     def proc_image_embedding(self, proc_img_t):
