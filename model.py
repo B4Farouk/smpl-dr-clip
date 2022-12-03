@@ -1,26 +1,32 @@
 """
-    This module regroups our functions and classes to build the
+    This module regroups our functions and classes to build the model
 """
-import torch
 
-def build_model(smpl, renderer, clip_model):
-    def smpl_fn(pose, shape):
-        mesh = smpl.mesh(theta=pose, beta=shape)
-        return mesh
+def compose(smpl, renderer, clip, **params):
+    # the prompt as a hyperparameter
+    prompt = params["prompt"]
     
+    # smpl mesh creation using the provided smpl model
+    def smpl_fn(pose, shape):
+        return smpl.mesh(theta=pose, beta=shape)
+    
+    # mesh rendering using the provided renderer
     def renderer_fn(mesh):
         return renderer.render(mesh)
+
+    # CLIP image embedding
+    def clip_img_fn(img_t):
+        return clip.image_embedding(img_t)
     
-    def clip_fn(image, prompt):
-        # formatting the image to fit the input
-        image = image.squeeze()
-        image = torch.permute(image, (2, 0, 1))
-        image = image[:3,:,:]
-        
-        image_feature, prompt_feature = clip_model.get_image_text_features(image, prompt)
-        return image_feature, prompt_feature
+    # CLIP prompt embedding
+    def clip_prompt_fn(prompt):
+        return clip.prompt_embedding(prompt)
     
-    def model(pose, shape, prompt):
-        return clip_fn(renderer_fn(smpl_fn(pose, shape)), prompt)
+    # compute the prompt embedding once only
+    prompt_emb = clip_prompt_fn(prompt)
+    
+    # the composed model
+    def model(pose, shape):
+        return clip_img_fn(renderer_fn(smpl_fn(pose, shape))), prompt_emb
         
     return model
