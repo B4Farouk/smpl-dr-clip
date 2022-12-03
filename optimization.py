@@ -33,7 +33,7 @@ class OptimEnv:
         
     def backward(self, loss):
         self.__optimizer.zero_grad()
-        loss.backward(retain_grad=True)
+        loss.backward(retain_graph=True)
         self.__optimizer.step()
     
     def optimize(self, pose, shape, n_passes=1000, verbose=True):
