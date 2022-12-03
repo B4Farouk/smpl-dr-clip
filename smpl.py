@@ -26,14 +26,14 @@ class SMPLwrapper:
                  
     # theta is the pose parameter of shape (1,72) 
     # beta is the shape parameter of shape (1,10)
-    def verts_and_faces(self, beta, theta):
+    def verts_and_faces(self, theta, beta):
         # create the vertices of the mesh
         vertices, _ = self.__model.forward(th_pose_axisang=theta, th_betas=beta, th_trans=None)
         faces = self.__model.th_faces[None, :]
         return vertices, faces
     
-    def mesh(self, beta, theta):
-        verts, faces = self.verts_and_faces(beta, theta)
+    def mesh(self, theta, beta):
+        verts, faces = self.verts_and_faces(theta, beta)
         texture = self.__txmapping(faces) # a function that creates a texture from faces
         mesh = mesh_from(
             vertices=verts, 
