@@ -70,10 +70,10 @@ class OptimEnv:
                 intermediate_losses.loc[len(intermediate_losses)] = {"pass": n, "loss": loss.item()}
             # pose tracking
             if track_pose and n % pose_interleaving == 0:
-                intermediate_poses.loc[len(intermediate_poses)] = {"pass": n, "pose": pose.cpu().detach().numpy()}
+                intermediate_poses.loc[len(intermediate_poses)] = {"pass": n, "pose": pose.cpu().detach()}
             # shape tracking
             if track_shape and n % shape_interleaving == 0:
-                intermediate_shapes.loc[len(intermediate_shapes)] = {"pass": n, "pose": shape.cpu().detach().numpy()}
+                intermediate_shapes.loc[len(intermediate_shapes)] = {"pass": n, "pose": shape.cpu().detach()}
         
         # if tracker_settings is None: result["tracked"] is None
         #   if not(track_loss): result["tracked"]["losses"] is None,
