@@ -40,7 +40,7 @@ class CLIPmodel:
         return prep_img_t
 
     def tokenize_prompt(self, text):
-        return clip.tokenize(["This is " + text]).cuda()
+        return clip.tokenize(["This is " + text]).to(self.device)
 
     def get_feature_prompt(self, tokenized_prompt):
         return self.model.encode_text(tokenized_prompt)#.float()
