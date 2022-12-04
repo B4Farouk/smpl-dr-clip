@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-import numpy as np
+import pandas as pd
 
 def init_weights(device):
     pose  = torch.zeros((1, 72), requires_grad=True, device=device) # theta
@@ -38,15 +38,24 @@ class OptimEnv:
         loss.backward(retain_graph=True)
         self.__optimizer.step()
     
-    def optimize(self, pose, shape, n_passes=1000, track_loss=True, every_npasses=50):
+    def optimize(self, pose, shape, n_passes=1000, tracking_settings=None):
+        
+        # tracking the loss during optimization
+        track_loss = tracking_settings is not None
         if track_loss:
-            tracked_losses = np.array([])
+            interleaving = tracking_settings.get("interleaving", 50)
+            losses = pd.DataFrame(columns=["pass_num", "loss"])
 
-        for n in range(n_passes):
+        # optimizaiton loop
+        for n in range(1, n_passes+1):
+            # optimization steps: forward pass + zero_grad + backward pass + optimizer step
             loss = self.forward(pose, shape)
             self.backward(loss)
+            # loss tracking every interleaving number of passes
+            if track_loss and n % interleaving == 0:
+                losses.loc[len(losses)] = {"pass_num": n, "loss": loss.item()}
             
-            if track_loss and n % every_npasses == 0:
-                tracked_losses = np.append(tracked_losses, loss.item())
-                    
-        return pose, shape, tracked_losses
+        # different return signature depending on whether we track the loss
+        if track_loss:
+            return (pose, shape), losses
+        return pose, shape
