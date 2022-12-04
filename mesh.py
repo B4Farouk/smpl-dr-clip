@@ -1,7 +1,6 @@
 
 import torch
 import utils
-from utils import device
 import copy
 import numpy as np
 import PIL
@@ -14,25 +13,25 @@ class Mesh():
             mesh = kal.io.off.import_mesh(obj_path)
         else:
             raise ValueError(f"{obj_path} extension not implemented in mesh reader.")
-        self.vertices = mesh.vertices.to(device)
-        self.faces = mesh.faces.to(device)
+        self.vertices = mesh.vertices
+        self.faces = mesh.faces
         self.vertex_normals = None
         self.face_normals = None
         self.texture_map = None
         self.face_uvs = None
         if ".obj" in obj_path:
             # if mesh.uvs.numel() > 0:
-            #     uvs = mesh.uvs.unsqueeze(0).to(device)
-            #     face_uvs_idx = mesh.face_uvs_idx.to(device)
+            #     uvs = mesh.uvs.unsqueeze(0)
+            #     face_uvs_idx = mesh.face_uvs_idx
             #     self.face_uvs = kal.ops.mesh.index_vertices_by_faces(uvs, face_uvs_idx).detach()
             if mesh.vertex_normals is not None:
-                self.vertex_normals = mesh.vertex_normals.to(device).float()
+                self.vertex_normals = mesh.vertex_normals.float()
 
                 # Normalize
                 self.vertex_normals = torch.nn.functional.normalize(self.vertex_normals)
 
             if mesh.face_normals is not None:
-                self.face_normals = mesh.face_normals.to(device).float()
+                self.face_normals = mesh.face_normals.float()
 
                 # Normalize
                 self.face_normals = torch.nn.functional.normalize(self.face_normals)
@@ -65,7 +64,7 @@ class Mesh():
         if isinstance(texture_map,str):
             texture_map = PIL.Image.open(texture_map)
             texture_map = np.array(texture_map,dtype=np.float) / 255.0
-            texture_map = torch.tensor(texture_map,dtype=torch.float).to(device).permute(2,0,1).unsqueeze(0)
+            texture_map = torch.tensor(texture_map,dtype=torch.float).permute(2,0,1).unsqueeze(0)
 
 
         mesh.texture_map = texture_map
