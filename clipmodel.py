@@ -28,7 +28,7 @@ class CLIPmodel:
     @staticmethod
     def _argb2rgb_tensor(image_tensor):
         image_tensor = image_tensor[:,:,:3] # remove alpha component
-        image_tensor = torch.permute(image_tensor, (2, 0, 1)) # from (W, H, 3) to (3, W, H)
+        #image_tensor = torch.permute(image_tensor, (2, 0, 1)) # from (W, H, 3) to (3, W, H)
         return image_tensor
 
     def train(self):
