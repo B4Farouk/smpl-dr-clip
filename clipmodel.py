@@ -13,23 +13,20 @@ class CLIPmodel:
     preprocess = T.Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711))
     # Our custom preprocessing to keep image as tensor
 
-    def __init__(self, device, prompt, model = "ViT-B/32"):
-        self.device = device
+    def __init__(self, prompt, model = "ViT-B/32"):
         self.model, _ = clip.load(model)
 
-        self.model.to(self.device)
-        #self.model.cuda().eval()
         self.model.eval()
 
-        tokenized_prompt = self.tokenize_prompt(prompt)
+        tokenized_prompt = self.tokenize_prompt(prompt).cuda()
         self.prompt_feature = self.get_feature_prompt(tokenized_prompt)
         self.prompt_feature /= self.prompt_feature.norm(dim=-1, keepdim=True)
 
     @staticmethod
-    def _argb2rgb_tensor(image_tensor):
-        image_tensor = image_tensor[:,:,:3] # remove alpha component
-        #image_tensor = torch.permute(image_tensor, (2, 0, 1)) # from (W, H, 3) to (3, W, H)
-        return image_tensor
+    def _argb2rgb_tensor(img_t):
+        #img_t = torch.permute(img_t, (2, 0, 1)) # from (W, H, 3) to (3, W, H)
+        img_t = img_t[:3,:,:] # remove alpha component
+        return img_t
 
     def train(self):
         self.model.train()
@@ -37,16 +34,17 @@ class CLIPmodel:
     def preprocess_image_tensor(self, img_t):
         img_t = CLIPmodel._argb2rgb_tensor(img_t.squeeze())
         prep_img_t = CLIPmodel.preprocess(img_t)
-        return prep_img_t
+        return prep_img_t.cuda()
 
     def tokenize_prompt(self, text):
-        return clip.tokenize(["This is " + text]).to(self.device)
+        return clip.tokenize(["This is " + text])
 
     def get_feature_prompt(self, tokenized_prompt):
         return self.model.encode_text(tokenized_prompt)#.float()
 
     def get_feature_image(self, img_t):
-        img_t = torch.unsqueeze(img_t, 0)
+        #img_t = torch.unsqueeze(img_t, 0)
+        print(img_t.shape)
         return self.model.encode_image(img_t)#.float()
 
     
