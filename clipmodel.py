@@ -46,7 +46,8 @@ class CLIPmodel:
         return self.model.encode_text(tokenized_prompt)#.float()
 
     def get_feature_image(self, img_t):
-        return self.model.encode_image(img_t).float()
+        img_t = torch.unsqueeze(img_t, 0)
+        return self.model.encode_image(img_t)#.float()
 
     
     # one tensor image
