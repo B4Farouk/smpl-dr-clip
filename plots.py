@@ -6,7 +6,6 @@ import seaborn as sns
 
 def plot_image_t(img_t):
     _, ax = plt.subplots(1, 1, figsize=(10,10))
-    ax.set_title("Image")
     ax.imshow(img_t[0, ..., :3].detach().cpu().numpy())
     ax.axis("off")
     return ax
