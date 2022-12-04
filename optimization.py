@@ -8,7 +8,7 @@ import torch.optim as optim
 import pandas as pd
 
 def init_weights(device):
-    pose  = torch.ones((1, 72), requires_grad=True, device=device) # theta
+    pose  = torch.zeros((1, 72), requires_grad=True, device=device) # theta
     shape = torch.ones((1, 10), requires_grad=True, device=device) # beta
     return pose, shape
 
