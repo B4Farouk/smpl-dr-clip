@@ -1,4 +1,6 @@
 import torch
+import PIL
+import numpy as np
 
 from pytorch3d.renderer import (
     TexturesAtlas,
@@ -36,3 +38,11 @@ class TexturesFactory:
         textures = TexturesAtlas(atlas=atlas)
         textures.to(self.__device)
         return textures
+    
+    def from_image(self,texture_map):
+        texture_map = PIL.Image.open(texture_map)
+        texture_map = np.array(texture_map,dtype=np.float) / 255.0
+        texture_map = torch.tensor(texture_map,dtype=torch.float).permute(2,0,1).unsqueeze(0)
+        textures = TexturesAtlas(atlas=texture_map)
+        textures.to(self.__device)
+        return texture
