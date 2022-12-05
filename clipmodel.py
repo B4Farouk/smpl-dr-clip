@@ -9,7 +9,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 
-class CLIPmodel:
+class CLIPwrapper:
     preprocess = T.Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711))
     # Our custom preprocessing to keep image as tensor
 
@@ -65,13 +65,13 @@ class CLIPmodel:
         self.prompt_feature = self.get_feature_from_prompt(prompt) 
     
     # one tensor image
-    def get_cosine_similarity(self, img_t, eps=1e-8): 
+    def get_cos_sim(self, img_t, eps=1e-8): 
         img_feature = self.get_feature_img_from_t(img_t)
         similarity = nn.CosineSimilarity(dim=1, eps=eps)(img_feature, self.prompt_feature)
         return similarity
     
-    def get_cosine_difference(self, img_t, eps=1e-8):
-        return 1 - self.get_cosine_similarity(img_t, eps=eps)
+    def get_cos_diff(self, img_t, eps=1e-8):
+        return 1 - self.get_cos_sim(img_t, eps=eps)
     
     def train(self):
         self.model.train()  
