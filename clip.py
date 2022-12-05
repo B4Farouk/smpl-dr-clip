@@ -73,11 +73,11 @@ class CLIPwrapper:
     # IMAGE/IMAGE, PROMPT/PROMPT, IMAGE/PROMPT FUNCTIONS
     #####################################################    
         
-    def joint_embedding(self, img_t, prompt):
+    def embeddings(self, img_t, prompt):
         return self.image_embedding(img_t), self.prompt_embedding(prompt)
     
-    def joint_img_embedding(self, img_t1, img_t2):
+    def image_embeddings(self, img_t1, img_t2):
         return self.image_embedding(img_t1), self.image_embedding(img_t2)
     
-    def joint_prompt_embedding(self, prompt1, prompt2):
+    def prompt_embeddings(self, prompt1, prompt2):
         return self.prompt_embedding(prompt1), self.prompt_embedding(prompt2)
