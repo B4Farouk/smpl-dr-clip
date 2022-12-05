@@ -46,7 +46,7 @@ class CLIPmodel:
         print(img_t.shape)
         return self.model.encode_image(img_t)#.float()
     
-    def get_feature_img_from_t(self, im_t):
+    def get_feature_img_from_t(self, img_t):
         prep_img_t = self.preprocess_img_t(img_t)
         img_feature = self.get_feature_img_from_preprocessed_img(prep_img_t)
         img_feature /= img_feature.norm(dim=-1, keepdim=True)
@@ -58,7 +58,7 @@ class CLIPmodel:
     
     # one tensor image
     def get_cosine_similarity(self, img_t, eps=1e-8): 
-        img_feature = self.get_feature_img_from_t(im_t)
+        img_feature = self.get_feature_img_from_t(img_t)
         similarity = nn.CosineSimilarity(dim=1, eps=eps)(img_feature, self.prompt_feature)
         return similarity
     
