@@ -14,7 +14,7 @@ class CLIPmodel:
     # Our custom preprocessing to keep image as tensor
 
     def __init__(self, prompt, model = "ViT-B/32"):
-        self.model, _ = clipwrapper.load(model)
+        self.model, _ = clip.load(model)
 
         self.model.eval()
 
