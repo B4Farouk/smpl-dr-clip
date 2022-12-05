@@ -15,56 +15,56 @@ class CLIPmodel:
 
     def __init__(self, prompt, model = "ViT-B/32"):
         self.model, _ = clip.load(model)
-
         self.model.eval()
-
-        tokenized_prompt = self.tokenize_prompt(prompt).cuda()
-        self.prompt_feature = self.get_feature_prompt(tokenized_prompt)
-        self.prompt_feature /= self.prompt_feature.norm(dim=-1, keepdim=True)
+        self.prompt_feature = self.get_feature_from_prompt(prompt)
 
     @staticmethod
     def _argb2rgb_tensor(img_t):
         #img_t = torch.permute(img_t, (2, 0, 1)) # from (W, H, 3) to (3, W, H)
         img_t = img_t[:3,:,:] # remove alpha component
         return img_t
+     
+    def tokenize_prompt(self, text):
+        return clip.tokenize(["This is " + text])
 
-    def train(self):
-        self.model.train()
-
-    def preprocess_image_tensor(self, img_t):
+    def get_feature_from_tokenized_prompt(self, tokenized_prompt):
+        return self.model.encode_text(tokenized_prompt)#.float()
+    
+    def get_feature_from_prompt(self, prompt):
+        tokenized_prompt = self.tokenize_prompt(prompt).cuda()
+        prompt_feature = self.get_feature_from_tokenized_prompt(tokenized_prompt)
+        prompt_feature /= prompt_feature.norm(dim=-1, keepdim=True)
+        return prompt_feature
+        
+    def preprocess_img_t(self, img_t):
         img_t = CLIPmodel._argb2rgb_tensor(img_t.squeeze())
         prep_img_t = CLIPmodel.preprocess(img_t)
         return prep_img_t.cuda()
-
-    def tokenize_prompt(self, text):
-        return clipwrapper.tokenize(["This is " + text])
-
-    def get_feature_prompt(self, tokenized_prompt):
-        return self.model.encode_text(tokenized_prompt)#.float()
-
-    def get_feature_image(self, img_t):
+    
+    def get_feature_img_from_preprocessed_img(self, img_t):
         #img_t = torch.unsqueeze(img_t, 0)
         print(img_t.shape)
         return self.model.encode_image(img_t)#.float()
-
+    
+    def get_feature_img_from_t(self, im_t):
+        prep_img_t = self.preprocess_img_t(img_t)
+        img_feature = self.get_feature_img_from_preprocessed_img(prep_img_t)
+        img_feature /= img_feature.norm(dim=-1, keepdim=True)
+        return img_feature
+        
+    # CALLABLE FUNCTIONS
+    def change_prompt_to(prompt):
+        self.prompt_feature = self.get_feature_from_prompt(prompt) 
     
     # one tensor image
     def get_cosine_similarity(self, img_t, eps=1e-8): 
-        # Preprocess the image
-        prep_img_t = self.preprocess_image_tensor(img_t)
-        img_feature = self.get_feature_image(prep_img_t)
-
-        # Normalize the feature
-        print("pre-norm image feature",img_feature)
-        img_feature /= img_feature.norm(dim=-1, keepdim=True)
-        print("post-norm image feature",img_feature)
-
-        # Compute the cosine similarity
+        img_feature = self.get_feature_img_from_t(im_t)
         similarity = nn.CosineSimilarity(dim=1, eps=eps)(img_feature, self.prompt_feature)
-        #similarity = text_features.cpu().numpy() @ image_features.cpu().numpy().T
         return similarity
     
-
     def get_cosine_difference(self, img_t, eps=1e-8):
         return 1 - self.get_cosine_similarity(img_t, eps=eps)
+    
+    def train(self):
+        self.model.train()  
  
