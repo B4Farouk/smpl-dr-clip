@@ -29,55 +29,54 @@ class CLIPwrapper:
     ###################
     
     @staticmethod
-    def _rgb_channels_t(img_t):
+    def _rgb_channels(img_t):
         # remove the alpha component: from (W, H, 4) to (W, H, 3) 
         img_t = img_t[:,:,:3] 
         # create RGB channels: from (W, H, 3) to (3, W, H)
         img_t = torch.permute(img_t, (2, 0, 1))
         return img_t
     
-    def proc_image_t(self, img_t):
+    def proc_img(self, img_t):
         # from (1, W, H, 4) to (W, H, 4)
         img_t = img_t.squeeze()
         # get rgb channels: result is (3, W, H)
-        img_t = CLIPwrapper._rgb_channels_t(img_t)
+        img_t = CLIPwrapper._rgb_channels(img_t)
         # apply custom image preprocessing
         transformed_img_t = CLIPwrapper.__IMAGE_TRANSFORM(img_t)
         return transformed_img_t
     
-    def proc_image_embedding(self, proc_img_t):
+    def procimg_emb(self, proc_img_t):
         proc_img_t = torch.unsqueeze(proc_img_t, 0)
         img_emb = self.__model.encode_image(proc_img_t)
         return img_emb
     
-    def image_embedding(self, img_t):
-        proc_img_t = self.proc_image_t(img_t)
-        return self.proc_image_embedding(proc_img_t)
+    def img_emb(self, img_t):
+        proc_img_t = self.proc_img(img_t)
+        return self.procimg_emb(proc_img_t)
       
     ###################
     # PROMPT FUNCTIONS
     ###################
     
-    def tokenize_prompt(self, prompt):
+    def tokens(self, prompt):
         return clip.tokenize(prompt).to(self.__device)
 
-    def prompt_tk_embedding(self, prompt_tk):
-        prompt_emb = self.__model.encode_text(prompt_tk)
-        return prompt_emb
+    def tk_emb(self, prompt_tk):
+        return self.__model.encode_text(prompt_tk)
         
-    def prompt_embedding(self, prompt):
-        prompt_tk = self.tokenize_prompt(prompt)
-        return self.prompt_tk_embedding(prompt_tk)
+    def pmt_emb(self, prompt):
+        prompt_tk = self.tokens(prompt)
+        return self.tk_emb(prompt_tk)
     
     #####################################################
     # IMAGE/IMAGE, PROMPT/PROMPT, IMAGE/PROMPT FUNCTIONS
     #####################################################    
         
-    def embeddings(self, img_t, prompt):
-        return self.image_embedding(img_t), self.prompt_embedding(prompt)
+    def embs(self, img_t, prompt):
+        return self.img_emb(img_t), self.pmt_emb(prompt)
     
-    def image_embeddings(self, img_t1, img_t2):
-        return self.image_embedding(img_t1), self.image_embedding(img_t2)
+    def img_embs(self, img_t1, img_t2):
+        return self.img_emb(img_t1), self.img_emb(img_t2)
     
-    def prompt_embeddings(self, prompt1, prompt2):
-        return self.prompt_embedding(prompt1), self.prompt_embedding(prompt2)
+    def pmt_embs(self, prompt1, prompt2):
+        return self.pmt_emb(prompt1), self.pmt_emb(prompt2)

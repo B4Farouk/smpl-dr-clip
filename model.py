@@ -16,14 +16,10 @@ def compose(smpl, renderer, clip, **params):
 
     # CLIP image embedding
     def clip_img_fn(img_t):
-        return clip.image_embedding(img_t)
+        return clip.img_emb(img_t)
     
     # CLIP prompt embedding
-    def clip_prompt_fn(prompt):
-        return clip.prompt_embedding(prompt)
-    
-    # compute the prompt embedding once only
-    prompt_emb = clip_prompt_fn(prompt)
+    prompt_emb = clip.pmt_emb(prompt)
     
     # the composed model
     def model(pose, shape):
