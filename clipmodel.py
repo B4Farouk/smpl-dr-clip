@@ -20,7 +20,15 @@ class CLIPmodel:
 
     @staticmethod
     def _argb2rgb_tensor(img_t):
-        #img_t = torch.permute(img_t, (2, 0, 1)) # from (W, H, 3) to (3, W, H)
+      # Check for different channels orders (to remove when not needed)
+        c1,c2,c3 = img_t.shape
+        if c3 in [3,4]:
+            img_t = torch.permute(img_t, (2, 0, 1)) # from (W, H, 3) to (3, W, H)
+            assert(c1 == c2)
+        elif c2 in [3,4]:
+            img_t = torch.permute(img_t, (1, 2, 0))
+        else:
+            assert(c2 == c3)
         img_t = img_t[:3,:,:] # remove alpha component
         return img_t
      
@@ -43,7 +51,7 @@ class CLIPmodel:
     
     def get_feature_img_from_preprocessed_img(self, img_t):
         img_t = torch.unsqueeze(img_t, 0)
-        print(img_t.shape)
+        #print(img_t.shape)
         return self.model.encode_image(img_t)#.float()
     
     def get_feature_img_from_t(self, img_t):
