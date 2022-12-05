@@ -27,7 +27,7 @@ def compose(smpl, renderer, clip, **params):
         
     return model
 
-class SimpledCLIPConfig:
+class SimpledCLIPContext:
     def __init__(self, smpl, renderer, clip):
         self.__smpl = smpl
         self.__renderer = renderer
