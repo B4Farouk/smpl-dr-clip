@@ -61,7 +61,7 @@ class CLIPmodel:
         return img_feature
         
     # CALLABLE FUNCTIONS
-    def change_prompt_to(prompt):
+    def change_prompt_to(self, prompt):
         self.prompt_feature = self.get_feature_from_prompt(prompt) 
     
     # one tensor image
