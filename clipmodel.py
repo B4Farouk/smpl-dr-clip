@@ -42,7 +42,7 @@ class CLIPmodel:
         return prep_img_t.cuda()
     
     def get_feature_img_from_preprocessed_img(self, img_t):
-        #img_t = torch.unsqueeze(img_t, 0)
+        img_t = torch.unsqueeze(img_t, 0)
         print(img_t.shape)
         return self.model.encode_image(img_t)#.float()
     
