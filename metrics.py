@@ -10,7 +10,7 @@ import torch.nn as nn
 def sim(u, v):
     return u @ v
 
-__COSINE_SIMILARITY = nn.CosineSimiliarity(dim=1, eps=1e-8)
+__COSINE_SIMILARITY = nn.CosineSimilarity(dim=1, eps=1e-8)
 def cos_sim(u, v):
     return __COSINE_SIMILARITY(u, v)
 
