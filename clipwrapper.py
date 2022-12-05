@@ -16,7 +16,7 @@ class CLIPwrapper:
         self.__model, _ = clip.load(model_name)
         self.__model.to(self.__device)
         # switch to evaluation mode
-        self.__model.eval()
+        self.__model.train()
         
     def eval(self):
         self.__model.eval()
@@ -59,7 +59,7 @@ class CLIPwrapper:
     ###################
     
     def tokenize_prompt(self, prompt):
-        return clip.tokenize(prompt).to(self.__device)
+        return clipwrapper.tokenize(prompt).to(self.__device)
 
     def prompt_tk_embedding(self, prompt_tk):
         prompt_emb = self.__model.encode_text(prompt_tk)
