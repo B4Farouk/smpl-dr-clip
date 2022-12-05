@@ -59,7 +59,7 @@ class CLIPwrapper:
     ###################
     
     def tokenize_prompt(self, prompt):
-        return clipwrapper.tokenize(prompt).to(self.__device)
+        return clip.tokenize(prompt).to(self.__device)
 
     def prompt_tk_embedding(self, prompt_tk):
         prompt_emb = self.__model.encode_text(prompt_tk)
