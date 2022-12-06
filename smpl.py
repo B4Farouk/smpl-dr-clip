@@ -6,7 +6,11 @@ import torch
 
 from smplpytorch.pytorch.smpl_layer import SMPL_Layer
 from pytorch3d.structures import Meshes
-
+from pytorch3d.renderer import (
+    TexturesAtlas,
+    TexturesUV,
+    TexturesVertex
+)
 def mesh_from(vertices, faces, texture):
     return Meshes(
         verts=vertices, 
@@ -33,9 +37,9 @@ class SMPLwrapper:
         faces = self.__model.th_faces[None, :]
         return vertices, faces
     
-    def mesh(self, theta, beta,image=False):
+    def mesh(self, theta, beta):
         verts, faces = self.verts_and_faces(theta, beta)
-        if(image):
+        if(isinstance(self.__txmapping,TexturesUV)):
             texture = self.__txmapping(verts , faces)
         else:
             texture = self.__txmapping(faces) # a function that creates a texture from faces
