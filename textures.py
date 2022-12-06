@@ -41,11 +41,11 @@ class TexturesFactory:
     
     def from_image(self,colored_reference_SMPL,verts,faces):
         
-        random_SMPL = trimesh.Trimesh(verts[0].to(torch.device("cpu")), faces.to(torch.device("cpu")), process=False)
+        random_SMPL = trimesh.Trimesh(verts[0].detach().to(torch.device("cpu")), faces.copy().to(torch.device("cpu").detach(), process=False)
         random_SMPL.visual.vertex_colors = colored_reference_SMPL.visual.vertex_colors
         texture = torch.from_numpy(
             colored_reference_SMPL.visual.vertex_colors[:,:3] # Remove transparency
           ).unsqueeze(0) / 255 # Add a fake batch size and normalize to [0,1]
-        textures = TexturesVertex(verts_features=texture)
-        textures.to(self.__device)
+        texture = TexturesVertex(verts_features=texture)
+        texture.to(self.__device)
         return texture
