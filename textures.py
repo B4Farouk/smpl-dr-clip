@@ -39,10 +39,13 @@ class TexturesFactory:
         textures.to(self.__device)
         return textures
     
-    def from_image(self,texture_map):
-        texture_map = PIL.Image.open(texture_map)
-        texture_map = np.array(texture_map,dtype=np.float) / 255.0
-        texture_map = torch.tensor(texture_map,dtype=torch.float).permute(2,0,1).unsqueeze(0)
-        textures = TexturesAtlas(atlas=texture_map)
+    def from_image(self,texture_image,verts,faces):
+        colored_reference_SMPL = trimesh.load(texture_image, process=False)
+        random_SMPL = trimesh.Trimesh(verts[0], smpl_layer.th_faces, process=False)
+        random_SMPL.visual.vertex_colors = colored_reference_SMPL.visual.vertex_colors
+        texture = torch.from_numpy(
+            colored_reference_SMPL.visual.vertex_colors[:,:3] # Remove transparency
+          ).unsqueeze(0) / 255 # Add a fake batch size and normalize to [0,1]
+        textures = TexturesVertex(verts_features=texture)
         textures.to(self.__device)
         return texture
