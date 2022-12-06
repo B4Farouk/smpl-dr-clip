@@ -36,7 +36,7 @@ class SMPLwrapper:
     def mesh(self, theta, beta,image=False):
         verts, faces = self.verts_and_faces(theta, beta)
         if(image):
-            texture = self.__txmapping(vers , faces)
+            texture = self.__txmapping(verts , faces)
         else:
             texture = self.__txmapping(faces) # a function that creates a texture from faces
         mesh = mesh_from(
