@@ -1,7 +1,7 @@
 import torch
 import PIL
 import numpy as np
-
+import trimesh
 from pytorch3d.renderer import (
     TexturesAtlas,
     TexturesUV,
