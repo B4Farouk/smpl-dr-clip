@@ -39,7 +39,7 @@ class SMPLwrapper:
     
     def mesh(self, theta, beta):
         verts, faces = self.verts_and_faces(theta, beta)
-        if(isinstance(self.__txmapping,TexturesUV)):
+        if(isinstance(self.__txmapping,TexturesVertex)):
             texture = self.__txmapping(verts , faces)
         else:
             texture = self.__txmapping(faces) # a function that creates a texture from faces
