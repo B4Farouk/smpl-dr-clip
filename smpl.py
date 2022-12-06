@@ -14,7 +14,8 @@ def mesh_from(vertices, faces, texture):
         textures=texture)
 
 class SMPLwrapper:
-    __DEFAULT_MODEL = SMPL_Layer(model_root='/content/project')
+    __DEFAULT_MODEL = SMPL_Layer(gender='female',
+        model_root='content/project')
     
     def __init__(self, model, txmapping, device):
         device = device if device is not None else torch.device("cpu")        
