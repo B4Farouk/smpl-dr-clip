@@ -39,7 +39,7 @@ class TexturesFactory:
         textures.to(self.__device)
         return textures
     
-    def from_image(colored_reference_SMPL,verts,faces):
+    def from_image(self,colored_reference_SMPL,verts,faces):
         
         random_SMPL = trimesh.Trimesh(verts[0], faces, process=False)
         random_SMPL.visual.vertex_colors = colored_reference_SMPL.visual.vertex_colors
