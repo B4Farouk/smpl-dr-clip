@@ -16,17 +16,22 @@ def compose(smpl, renderer, clip, **params):
 
     # CLIP image embedding
     def clip_img_fn(img_t):
-        return clip.image_embedding(img_t)
+        return clip.img_emb(img_t)
     
     # CLIP prompt embedding
-    def clip_prompt_fn(prompt):
-        return clip.prompt_embedding(prompt)
-    
-    # compute the prompt embedding once only
-    prompt_emb = clip_prompt_fn(prompt)
+    prompt_emb = clip.pmt_emb(prompt)
     
     # the composed model
     def model(pose, shape):
         return clip_img_fn(renderer_fn(smpl_fn(pose, shape))), prompt_emb
         
     return model
+
+class SimpledCLIPContext:
+    def __init__(self, smpl, renderer, clip):
+        self.__smpl = smpl
+        self.__renderer = renderer
+        self.__clip = clip
+        
+    def create(self,  prompt):
+        return compose(self.__smpl, self.__renderer, self.__clip, prompt=prompt)

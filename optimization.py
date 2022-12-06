@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-import numpy as np
+import pandas as pd
 
 def init_weights(device):
     pose  = torch.zeros((1, 72), requires_grad=True, device=device) # theta
@@ -38,15 +38,53 @@ class OptimEnv:
         loss.backward(retain_graph=True)
         self.__optimizer.step()
     
-    def optimize(self, pose, shape, n_passes=1000, track_loss=True, every_npasses=50):
+    def optimize(self, pose, shape, n_passes=1000, tracker_settings=None):
+        # get tracker settings
+        pose_tracker_settings = tracker_settings.get("pose", None)
+        shape_tracker_settings = tracker_settings.get("shape", None)
+        loss_tracker_settings = tracker_settings.get("loss", None)
+        
+        track_loss = loss_tracker_settings is not None
         if track_loss:
-            tracked_losses = np.array([])
-
-        for n in range(n_passes):
+            loss_interleaving = loss_tracker_settings.get("interleaving", 50)
+            intermediate_losses = pd.DataFrame(columns=["pass", "loss"])
+            
+        track_pose = pose_tracker_settings is not None
+        if track_pose:
+            pose_interleaving = pose_tracker_settings.get("interleaving", 100)
+            intermediate_poses = pd.DataFrame(columns=["pass", "pose"])
+        
+        track_shape = shape_tracker_settings is not None
+        if track_shape:
+            shape_interleaving = pose_tracker_settings.get("interleaving", 100)
+            intermediate_shapes = pd.DataFrame(columns=["pass", "shape"])
+        
+        # optimizaiton loop
+        for n in range(1, n_passes+1):
+            # optimization steps: forward pass + zero_grad + backward pass + optimizer step
             loss = self.forward(pose, shape)
             self.backward(loss)
             
-            if track_loss and n % every_npasses == 0:
-                tracked_losses = np.append(tracked_losses, loss.item())
-                    
-        return pose, shape, tracked_losses
+            # loss tracking
+            if track_loss and n % loss_interleaving == 0:
+                intermediate_losses.loc[len(intermediate_losses)] = {"pass": n, "loss": loss.item()}
+            # pose tracking
+            if track_pose and n % pose_interleaving == 0:
+                intermediate_poses.loc[len(intermediate_poses)] = {"pass": n, "pose": pose.cpu().detach()}
+            # shape tracking
+            if track_shape and n % shape_interleaving == 0:
+                intermediate_shapes.loc[len(intermediate_shapes)] = {"pass": n, "shape": shape.cpu().detach()}
+        
+        # if tracker_settings is None: result["tracked"] is None
+        #   if not(track_loss): result["tracked"]["losses"] is None,
+        #   similarly for other entries in result["tracked"] for example for result["tracked"]["pose"]
+        result = {
+            "params": {"pose": pose, "shape": shape},
+            "tracked": {
+                "losses": intermediate_losses if track_loss else None, 
+                "poses": intermediate_poses if track_pose else None,
+                "shapes": intermediate_shapes if track_shape else None
+                } if tracker_settings is not None else None
+        }
+        
+        return result

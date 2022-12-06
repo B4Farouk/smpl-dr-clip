@@ -43,4 +43,6 @@ class TexturesFactory:
         texture_map = PIL.Image.open(texture_map)
         texture_map = np.array(texture_map,dtype=np.float) / 255.0
         texture_map = torch.tensor(texture_map,dtype=torch.float).permute(2,0,1).unsqueeze(0)
-        return texture_map
+        textures = TexturesAtlas(atlas=texture_map)
+        textures.to(self.__device)
+        return texture
