@@ -45,8 +45,8 @@ class CLIPwrapper:
         return prompt_feature
         
     def preprocess_img_t(self, img_t):
-        img_t = CLIPmodel._argb2rgb_tensor(img_t.squeeze())
-        prep_img_t = CLIPmodel.preprocess(img_t)
+        img_t = CLIPwrapper._argb2rgb_tensor(img_t.squeeze())
+        prep_img_t = CLIPwrapper.preprocess(img_t)
         return prep_img_t.cuda()
     
     def get_feature_img_from_preprocessed_img(self, img_t):
