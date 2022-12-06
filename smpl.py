@@ -33,9 +33,12 @@ class SMPLwrapper:
         faces = self.__model.th_faces[None, :]
         return vertices, faces
     
-    def mesh(self, theta, beta):
+    def mesh(self, theta, beta,image=False):
         verts, faces = self.verts_and_faces(theta, beta)
-        texture = self.__txmapping(faces) # a function that creates a texture from faces
+        if(image):
+            texture = self.__txmapping(vers , faces)
+        else:
+            texture = self.__txmapping(faces) # a function that creates a texture from faces
         mesh = mesh_from(
             vertices=verts, 
             faces=faces, 
