@@ -41,7 +41,7 @@ class TexturesFactory:
     
     def from_image(self,colored_reference_SMPL,verts,faces):
         
-        random_SMPL = trimesh.Trimesh(verts[0].detach().to(torch.device("cpu")), faces.copy().to(torch.device("cpu").detach(), process=False)
+        random_SMPL = trimesh.Trimesh(verts[0].detach().to(torch.device("cpu")), faces.copy().to(torch.device("cpu")).detach(), process=False)
         random_SMPL.visual.vertex_colors = colored_reference_SMPL.visual.vertex_colors
         texture = torch.from_numpy(
             colored_reference_SMPL.visual.vertex_colors[:,:3] # Remove transparency
