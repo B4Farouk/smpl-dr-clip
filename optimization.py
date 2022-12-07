@@ -8,7 +8,7 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 import pandas as pd
 
-from metrics import cos_dist
+from metrix import cos_dist
 
 def init_weights(device):
     pose  = torch.zeros((1, 72), requires_grad=True, device=device) # theta
@@ -27,9 +27,9 @@ class OptimEnv:
         self.__optimizer = Adam(params=weights, lr=lr, betas=betas)
         # LR scheduler
         factor = config.get("sch_factor", 0.5)
-        patience = config.get("sch_patience", 0.5)
+        patience = config.get("sch_patience", 5)
         threshold = config.get("sch_threshold", 1e-3)
-        cooldown = config.get("sch_cooldown", 100)
+        cooldown = config.get("sch_cooldown", 0)
         lr_sch_verbose = config.get("sch_verbose", False)
         self.__lr_scheduler = ReduceLROnPlateau(
             optimizer=self.__optimizer, 
