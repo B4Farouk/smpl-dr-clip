@@ -1,11 +1,14 @@
 """
     This module regroups our functions and classes used to train the model
 """
+# torch imports
 import torch
-import torch.nn as nn
-import torch.optim as optim
+from torch.optim import Adam
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 import pandas as pd
+
+from metrics import cos_dist
 
 def init_weights(device):
     pose  = torch.zeros((1, 72), requires_grad=True, device=device) # theta
@@ -13,20 +16,38 @@ def init_weights(device):
     return pose, shape
 
 class OptimEnv:
-    __DEFAULT_SIM_FN  = nn.CosineSimilarity(dim=1, eps=1e-8)
-    __DEFAULT_LOSS_FN = lambda img_emb, prompt_emb: 1 - OptimEnv.__DEFAULT_SIM_FN(img_emb, prompt_emb)
-    
-    def __init__(self, model, params, lr=1e-3, betas=(0.9, 0.999)):
+    def __init__(self, model, weights, config={}):
+        # model
         self.__model = model
-        self.__params = params
-        self.__optimizer = optim.Adam(params=self.__params, lr=lr, betas=betas)#, amsgrad=True)
-        self.__loss_fn = OptimEnv.__DEFAULT_LOSS_FN
+        # loss function
+        self.__loss_fn = cos_dist
+        # optimizer    
+        lr = config.get("lr", 1e-3)
+        betas = config.get("betas", (0.9, 0.999))
+        self.__optimizer = Adam(params=weights, lr=lr, betas=betas)
+        # LR scheduler
+        factor = config.get("sch_factor", 0.5)
+        patience = config.get("sch_patience", 0.5)
+        threshold = config.get("sch_threshold", 1e-3)
+        cooldown = config.get("sch_cooldown", 100)
+        lr_sch_verbose = config.get("sch_verbose", False)
+        self.__lr_scheduler = ReduceLROnPlateau(
+            optimizer=self.__optimizer, 
+            mode="min",
+            factor=factor,
+            threshold=threshold,
+            patience=patience,
+            cooldown=cooldown,
+            verbose=lr_sch_verbose)
         
     def set_optimizer(self, optimizer):
         self.__optimizer = optimizer
         
     def set_loss_fn(self, loss_fn):
         self.__loss_fn = loss_fn
+    
+    def set_lr_scheduler(self, scheduler):
+        self.__lr_scheduler = scheduler
     
     def forward(self, pose, shape):
         image_embedding, prompt_embedding = self.__model(pose, shape)
@@ -64,7 +85,9 @@ class OptimEnv:
             # optimization steps: forward pass + zero_grad + backward pass + optimizer step
             loss = self.forward(pose, shape)
             self.backward(loss)
-            
+            # LR scheduler update after each iteration, seems to be the right to do with the current schedueler: ReduceLROnPlateau  
+            self.__lr_scheduler.step()
+                          
             # loss tracking
             if track_loss and n % loss_interleaving == 0:
                 intermediate_losses.loc[len(intermediate_losses)] = {"pass": n, "loss": loss.item()}
