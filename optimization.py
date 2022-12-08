@@ -17,10 +17,10 @@ def init_weights(device):
     return pose, shape
 
 class OptimEnv:
-    def __init__(self, model, weights, config={}):
+    def __init__(self, model, weights, activate_lr_sch, config={}):
         # model
         self.__model = model
-                
+        
         # loss function
         self.__loss_fn = lambda u, v,: cosine_similarity(u, v, dim=1, eps=1e-8)
         
@@ -28,20 +28,25 @@ class OptimEnv:
         lr = config.get("lr", 1e-3)
         betas = config.get("betas", (0.9, 0.999))
         self.__optimizer = Adam(params=weights, lr=lr, betas=betas)
+        
         # LR scheduler
+        self.__activate_lr_sch = activate_lr_sch
+        
         factor = config.get("sch_factor", 0.5)
         patience = config.get("sch_patience", 10)
         threshold = config.get("sch_threshold", 1e-3)
         cooldown = config.get("sch_cooldown", 0)
         lr_sch_verbose = config.get("sch_verbose", False)
-        self.__lr_scheduler = ReduceLROnPlateau(
-            optimizer=self.__optimizer, 
-            mode="min",
-            factor=factor,
-            threshold=threshold,
-            patience=patience,
-            cooldown=cooldown,
-            verbose=lr_sch_verbose)
+        
+        if activate_lr_sch:
+            self.__lr_scheduler = ReduceLROnPlateau(
+                optimizer=self.__optimizer, 
+                mode="min",
+                factor=factor,
+                threshold=threshold,
+                patience=patience,
+                cooldown=cooldown,
+                verbose=lr_sch_verbose)
         
     def set_optimizer(self, optimizer):
         self.__optimizer = optimizer
@@ -88,8 +93,9 @@ class OptimEnv:
             # optimization steps: forward pass + zero_grad + backward pass + optimizer step
             loss = self.forward(pose, shape)
             self.backward(loss)
-            # LR scheduler update after each iteration, seems to be the right to do with the current schedueler: ReduceLROnPlateau  
-            self.__lr_scheduler.step(metrics=loss)
+            if self.__activate_lr_sch:
+                # LR scheduler update after each iteration, seems to be the right to do with the current schedueler: ReduceLROnPlateau  
+                self.__lr_scheduler.step(metrics=loss)
                           
             # loss tracking
             if track_loss and n % loss_interleaving == 0:
