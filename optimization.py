@@ -20,9 +20,7 @@ class OptimEnv:
     def __init__(self, model, weights, config={}):
         # model
         self.__model = model
-        # set the model in training mode
-        model.train()
-        
+                
         # loss function
         self.__loss_fn = lambda u, v,: cosine_similarity(u, v, dim=1, eps=1e-8)
         
