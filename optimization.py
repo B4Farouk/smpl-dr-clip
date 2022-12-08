@@ -3,12 +3,13 @@
 """
 # torch imports
 import torch
+
 from torch.optim import Adam
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
-import pandas as pd
+from torch.nn.functional import cosine_similarity
 
-from auxilary_functions import cos_dist
+import pandas as pd
 
 def init_weights(device):
     pose  = torch.zeros((1, 72), requires_grad=True, device=device) # theta
@@ -20,7 +21,7 @@ class OptimEnv:
         # model
         self.__model = model
         # loss function
-        self.__loss_fn = cos_dist
+        self.__loss_fn = lambda u, v,: cosine_similarity(u, v, dim=1, eps=1e-8)
         # optimizer    
         lr = config.get("lr", 1e-3)
         betas = config.get("betas", (0.9, 0.999))
