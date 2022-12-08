@@ -8,7 +8,7 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 import pandas as pd
 
-from auxilary import cos_dist
+import auxilary as aux
 
 def init_weights(device):
     pose  = torch.zeros((1, 72), requires_grad=True, device=device) # theta
@@ -20,7 +20,7 @@ class OptimEnv:
         # model
         self.__model = model
         # loss function
-        self.__loss_fn = cos_dist
+        self.__loss_fn = aux.cos_dist
         # optimizer    
         lr = config.get("lr", 1e-3)
         betas = config.get("betas", (0.9, 0.999))
