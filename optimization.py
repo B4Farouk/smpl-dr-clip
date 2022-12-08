@@ -24,7 +24,7 @@ class OptimEnv:
         # loss function
         self.__loss_fn = lambda u, v,: cosine_similarity(u, v, dim=1, eps=1e-8)
         
-        # optimizer    
+        # optimizer
         lr = config.get("lr", 1e-3)
         betas = config.get("betas", (0.9, 0.999))
         self.__optimizer = Adam(params=weights, lr=lr, betas=betas)
@@ -89,7 +89,7 @@ class OptimEnv:
             loss = self.forward(pose, shape)
             self.backward(loss)
             # LR scheduler update after each iteration, seems to be the right to do with the current schedueler: ReduceLROnPlateau  
-            self.__lr_scheduler.step(metrics=[loss])
+            self.__lr_scheduler.step(metrics=loss)
                           
             # loss tracking
             if track_loss and n % loss_interleaving == 0:
