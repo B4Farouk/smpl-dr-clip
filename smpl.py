@@ -29,10 +29,6 @@ class SMPLwrapper:
         self.__model.to(device)
         
         self.__batchsize = 1 if batchsize is None or batchsize <= 0 else batchsize
-    
-    def set_batchsize(self, batchsize):
-        assert batchsize >= 1
-        self.__batchsize = batchsize
          
     # theta is the pose parameter of shape (1,72) 
     # beta is the shape parameter of shape (1,10)
