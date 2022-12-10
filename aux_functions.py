@@ -19,7 +19,7 @@ def cos_dist(u, v):
 
 def plot_image_t(img_t):
     _, ax = plt.subplots(1, 1, figsize=(10,10))
-    ax.imshow(img_t[0, ..., :3].detach().cpu().numpy())
+    ax.imshow(img_t[..., :3].detach().cpu().numpy())
     ax.axis("off")
     return ax
 
