@@ -8,7 +8,7 @@ def compose(smpl, renderer, clip, **params):
     
     # smpl mesh creation using the provided smpl model
     def smpl_fn(pose, shape):
-        return smpl.mesh(theta=pose, beta=shape)
+        return smpl.meshes(theta=pose, beta=shape)
     
     # mesh rendering using the provided renderer
     def rendering_fn(mesh):

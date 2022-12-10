@@ -17,7 +17,7 @@ def init_weights(device):
     return pose, shape
 
 class OptimEnv:
-    __DEFAULT_MULTI_IMAGE_LOSS_MODE = "AvgEmbLoss"
+    __DEFAULT_MULTI_IMAGE_LOSS_MODE = "average-loss-on-embeddings"
     
     def __init__(self, model, weights, activate_lr_sch, config={}):
         # model
@@ -64,9 +64,9 @@ class OptimEnv:
     def forward(self, pose, shape):
         imgs_embs, pmt_emb = self.__model(pose, shape)
         
-        if self.__loss_mode == "AvgEmbLoss":
-            loss = self.__loss_fn(imgs_embs.mean(), pmt_emb)
-        elif self.__loss_mode == "EmbLossAvg":
+        if self.__loss_mode == "loss-of-average-embedding":
+            loss = self.__loss_fn(imgs_embs.mean(axis=0, keepdims=True), pmt_emb)
+        elif self.__loss_mode == "average-loss-on-embeddings":
             loss = torch.Tensor([self.__loss_fn(img_emb, pmt_emb) for img_emb in imgs_embs]).mean()
         else:
             raise ValueError("incorrect loss mode")
