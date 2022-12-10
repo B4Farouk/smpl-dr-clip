@@ -11,7 +11,7 @@ from torch.nn.functional import cosine_similarity
 ###########################
 
 def cos_dist(u, v):
-    return cosine_similarity(u, v, dim=1, eps=1e-8)
+    return 1 - cosine_similarity(u, v, dim=1, eps=1e-8)
 
 ###########################
 # Plotters
