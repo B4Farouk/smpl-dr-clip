@@ -37,14 +37,13 @@ class SMPLwrapper:
         faces = self.__model.th_faces[None, :]
         return vertices, faces
     
-    def mesh(self, theta, beta):
+    def meshes(self, theta, beta, batchsize=1):        
         verts, faces = self.verts_and_faces(theta, beta)
-        if(isinstance(self.__txmapping,TexturesAtlas)):
-            texture = self.__txmapping(faces) # a function that creates a texture from faces
-        else:
-            texture = self.__txmapping(verts , faces)
+        texture = self.__txmapping(verts, faces)
         mesh = mesh_from(
             vertices=verts, 
             faces=faces, 
             texture=texture)
-        return mesh
+        
+        meshes = mesh.extend(batchsize) if batchsize > 1 else mesh
+        return meshes

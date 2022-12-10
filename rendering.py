@@ -133,7 +133,7 @@ class Renderer:
         self.__renderer = MeshRenderer(rasterizer=self.__rasterizer, shader=self.__shader)
         self.__renderer.to(device)
     
-    def render(self, mesh):
+    def render(self, meshes):
         """
         Renders a mesh
 
@@ -143,4 +143,4 @@ class Renderer:
         Returns:
             (Image): the resulting image.
         """
-        return self.__renderer(mesh)
+        return self.__renderer(meshes)
