@@ -17,6 +17,8 @@ def init_weights(device):
     return pose, shape
 
 class OptimEnv:
+    __DEFAULT_MULTI_IMAGE_LOSS_MODE = "AvgEmbLoss"
+    
     def __init__(self, model, weights, activate_lr_sch, config={}):
         # model
         self.__model = model
@@ -38,6 +40,9 @@ class OptimEnv:
         cooldown = config.get("sch_cooldown", 0)
         lr_sch_verbose = config.get("sch_verbose", False)
         
+        self.__mode = config.get("mode", OptimEnv.__DEFAULT_MULTI_IMAGE_LOSS_MODE)
+        
+        
         if activate_lr_sch:
             self.__lr_scheduler = ReduceLROnPlateau(
                 optimizer=self.__optimizer, 
@@ -58,8 +63,16 @@ class OptimEnv:
         self.__lr_scheduler = scheduler
     
     def forward(self, pose, shape):
-        image_embedding, prompt_embedding = self.__model(pose, shape)
-        loss = self.__loss_fn(image_embedding, prompt_embedding)
+        imgs_embs, pmt_emb = self.__model(pose, shape)
+        
+        loss = None
+        if self.__mode == "AvgEmbLoss":
+            loss = self.__loss_fn(imgs_embs.mean(), pmt_emb)
+        elif self.__mode == "EmbLossAvg":
+            loss = torch.Tensor([self.__loss_fn(img_emb, pmt_emb) for img_emb in imgs_embs]).mean()
+        else:
+            raise ValueError("incorrect loss mode")
+        
         return loss
         
     def backward(self, loss):

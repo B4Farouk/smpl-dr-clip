@@ -11,19 +11,20 @@ def compose(smpl, renderer, clip, **params):
         return smpl.mesh(theta=pose, beta=shape)
     
     # mesh rendering using the provided renderer
-    def renderer_fn(mesh):
+    def rendering_fn(mesh):
         return renderer.render(mesh)
 
-    # CLIP image embedding
-    def clip_img_fn(img_t):
-        return clip.img_emb(img_t)
+    # CLIP images embedding
+    def clip_imgs_fn(imgs_t):
+        assert imgs_t.ndim == 4 # (N, W, H, RGBA)
+        return clip.imgs_embs(imgs_t)
     
     # CLIP prompt embedding
     prompt_emb = clip.pmt_emb(prompt)
     
     # the composed model
     def model(pose, shape):
-        return clip_img_fn(renderer_fn(smpl_fn(pose, shape))), prompt_emb
+        return clip_imgs_fn(rendering_fn(smpl_fn(pose, shape))), prompt_emb
         
     return model
 

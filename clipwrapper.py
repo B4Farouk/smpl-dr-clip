@@ -53,19 +53,45 @@ class CLIPwrapper:
     def img_emb(self, img_t):
         proc_img_t = self.proc_img(img_t)
         return self.procimg_emb(proc_img_t)
-      
+    
+    ############################
+    # MULTIPLE IMAGES FUNCTIONS
+    ############################
+    
+    @staticmethod
+    def _n_rgb_channels(imgs_t):
+        # remove the alpha component: from (N, W, H, 4) to (N, W, H, 3)
+        imgs_t = imgs_t[...,:3]
+        # create RGB channels: from (N, W, H, 3) to (N, 3, W, H)
+        return torch.permute(imgs_t, (0, 3, 1, 2))
+    
+    def proc_imgs(self, imgs_t):
+        # get rgb channels: result is (N, 3, W, H)
+        imgs_t = CLIPwrapper._n_rgb_channels(imgs_t)
+        # apply custom image preprocessing
+        return torch.Tensor([CLIPwrapper.__IMAGE_TRANSFORM(img_t) for img_t in imgs_t])       
+    
+    def procimgs_emb(self, proc_imgs_t):
+        # encode_image can encode multiple images simultaneously
+        imgs_embs = self.__model.encode_image(proc_imgs_t)
+        return imgs_embs
+    
+    def imgs_embs(self, imgs_t):
+        proc_imgs_t = self.proc_imgs(imgs_t)
+        return self.procimgs_emb(proc_imgs_t)
+    
     ###################
     # PROMPT FUNCTIONS
     ###################
     
-    def tokens(self, prompt):
+    def tokenize(self, prompt):
         return clip.tokenize(prompt).to(self.__device)
 
     def tk_emb(self, prompt_tk):
         return self.__model.encode_text(prompt_tk)
         
     def pmt_emb(self, prompt):
-        prompt_tk = self.tokens(prompt)
+        prompt_tk = self.tokenize(prompt)
         return self.tk_emb(prompt_tk)
     
     #####################################################
