@@ -138,9 +138,9 @@ class Renderer:
         Renders a mesh
 
         Args:
-            mesh: mesh to be rendered.
+            meshes: meshes to be rendered.
 
         Returns:
-            (Image): the resulting image.
+            (Image): the resulting images.
         """
         return self.__renderer(meshes)
