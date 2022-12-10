@@ -31,26 +31,33 @@ class OptimEnv:
         betas = config.get("betas", (0.9, 0.999))
         self.__optimizer = Adam(params=weights, lr=lr, betas=betas)
         
+        # loss mode
+        self.__loss_mode = config.get("loss_mode", OptimEnv.__DEFAULT_MULTI_IMAGE_LOSS_MODE)
+        
         # LR scheduler
         self.__activate_lr_sch = activate_lr_sch
         
-        factor = config.get("sch_factor", 0.5)
-        patience = config.get("sch_patience", 10)
-        threshold = config.get("sch_threshold", 1e-3)
-        cooldown = config.get("sch_cooldown", 0)
-        lr_sch_verbose = config.get("sch_verbose", False)
+        sch_factor = config.get("sch_factor", 0.5)
+        sch_min_lr = config.get("sch_min_lr", 5*1e-5)
         
-        self.__loss_mode = config.get("loss_mode", OptimEnv.__DEFAULT_MULTI_IMAGE_LOSS_MODE)
+        sch_threshold = config.get("sch_threshold", 1e-3)
+        sch_patience = config.get("sch_patience", 10)
+        sch_cooldown = config.get("sch_cooldown", 0)
+        
+        sch_verbose = config.get("sch_verbose", False)
         
         if activate_lr_sch:
             self.__lr_scheduler = ReduceLROnPlateau(
                 optimizer=self.__optimizer, 
                 mode="min",
-                factor=factor,
-                threshold=threshold,
-                patience=patience,
-                cooldown=cooldown,
-                verbose=lr_sch_verbose)
+                factor=sch_factor,
+                min_lr=sch_min_lr,
+                threshold=sch_threshold,
+                
+                patience=sch_patience,
+                cooldown=sch_cooldown,
+                
+                verbose=sch_verbose)
         
     def set_optimizer(self, optimizer):
         self.__optimizer = optimizer
@@ -78,25 +85,25 @@ class OptimEnv:
         loss.backward(retain_graph=True)
         self.__optimizer.step()
     
-    def optimize(self, pose, shape, n_passes=1000, tracker_settings=None):
+    def optimize(self, pose, shape, n_passes=1000, tracker_config=None):
         # get tracker settings
-        pose_tracker_settings = tracker_settings.get("pose", None)
-        shape_tracker_settings = tracker_settings.get("shape", None)
-        loss_tracker_settings = tracker_settings.get("loss", None)
+        pose_tracker_config = tracker_config.get("pose", None)
+        shape_tracker_config = tracker_config.get("shape", None)
+        loss_tracker_config = tracker_config.get("loss", None)
         
-        track_loss = loss_tracker_settings is not None
+        track_loss = loss_tracker_config is not None
         if track_loss:
-            loss_interleaving = loss_tracker_settings.get("interleaving", 50)
+            loss_interleaving = loss_tracker_config.get("interleaving", 50)
             intermediate_losses = pd.DataFrame(columns=["pass", "loss"])
             
-        track_pose = pose_tracker_settings is not None
+        track_pose = pose_tracker_config is not None
         if track_pose:
-            pose_interleaving = pose_tracker_settings.get("interleaving", 100)
+            pose_interleaving = pose_tracker_config.get("interleaving", 100)
             intermediate_poses = pd.DataFrame(columns=["pass", "pose"])
         
-        track_shape = shape_tracker_settings is not None
+        track_shape = shape_tracker_config is not None
         if track_shape:
-            shape_interleaving = pose_tracker_settings.get("interleaving", 100)
+            shape_interleaving = pose_tracker_config.get("interleaving", 100)
             intermediate_shapes = pd.DataFrame(columns=["pass", "shape"])
         
         # optimizaiton loop
@@ -118,7 +125,7 @@ class OptimEnv:
             if track_shape and n % shape_interleaving == 0:
                 intermediate_shapes.loc[len(intermediate_shapes)] = {"pass": n, "shape": shape.cpu().detach()}
         
-        # if tracker_settings is None: result["tracked"] is None
+        # if tracker_config is None: result["tracked"] is None
         #   if not(track_loss): result["tracked"]["losses"] is None,
         #   similarly for other entries in result["tracked"] for example for result["tracked"]["pose"]
         result = {
@@ -127,7 +134,7 @@ class OptimEnv:
                 "losses": intermediate_losses if track_loss else None, 
                 "poses": intermediate_poses if track_pose else None,
                 "shapes": intermediate_shapes if track_shape else None
-                } if tracker_settings is not None else None
+                } if tracker_config is not None else None
         }
         
         return result
