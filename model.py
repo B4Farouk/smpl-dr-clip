@@ -16,7 +16,6 @@ def compose(smpl, renderer, clip, **params):
 
     # CLIP images embedding
     def clip_imgs_fn(imgs_t):
-        assert imgs_t.ndim == 4 # (N, W, H, RGBA)
         return clip.imgs_embs(imgs_t)
     
     # CLIP prompt embedding
