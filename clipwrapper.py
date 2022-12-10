@@ -69,7 +69,7 @@ class CLIPwrapper:
         # get rgb channels: result is (N, 3, W, H)
         imgs_t = CLIPwrapper._n_rgb_channels(imgs_t)
         # apply custom image preprocessing
-        return torch.Tensor([CLIPwrapper.__IMAGE_TRANSFORM(img_t) for img_t in imgs_t])       
+        return CLIPwrapper.__IMAGE_TRANSFORM(imgs_t)       
     
     def procimgs_emb(self, proc_imgs_t):
         # encode_image can encode multiple images simultaneously
