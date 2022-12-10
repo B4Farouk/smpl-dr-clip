@@ -24,7 +24,7 @@ class OptimEnv:
         self.__model = model
         
         # loss function
-        self.__loss_fn = lambda u, v,: cosine_similarity(u, v, dim=1, eps=1e-8)
+        self.__loss_fn = lambda u, v,: 1 - cosine_similarity(u, v, dim=1, eps=1e-8)
         
         # optimizer
         lr = config.get("lr", 1e-3)
@@ -74,7 +74,7 @@ class OptimEnv:
         if self.__loss_mode == "loss-of-average-embedding":
             loss = self.__loss_fn(imgs_embs.mean(axis=0, keepdims=True), pmt_emb)
         elif self.__loss_mode == "average-loss-on-embeddings":
-            loss = torch.Tensor([self.__loss_fn(img_emb, pmt_emb) for img_emb in imgs_embs]).mean()
+            loss = self.__loss_fn(imgs_embs, pmt_emb).mean()
         else:
             raise ValueError("incorrect loss mode")
         
