@@ -29,7 +29,7 @@ def plot_images_t(imgs_t, n, ncols):
     nrows += int(n - ncols * nrows > 0)
 
     fig, axs = plt.subplots(nrows, ncols, figsize=(5,5))
-    for ax, img_t in zip((axs, imgs_t))
+    for ax, img_t in zip((axs, imgs_t)):
         ax.imshow(img_t[..., :3].detach().cpu().numpy())
         ax.axis("off")
     
