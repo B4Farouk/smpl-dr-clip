@@ -1,6 +1,7 @@
 """
     This module regroups our auxilary functions
 """
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -18,18 +19,44 @@ def cos_dist(u, v):
 ###########################
 
 def plot_image_t(img_t):
-    _, ax = plt.subplots(1, 1, figsize=(10,10))
+    fig, ax = plt.subplots(1, 1, figsize=(5,5))
     ax.imshow(img_t[..., :3].detach().cpu().numpy())
     ax.axis("off")
-    return ax
+    return fig, ax
+
+def plot_images_t(imgs_t, n, ncols):
+    nrows = n // ncols
+    nrows += int(n - ncols * nrows > 0)
+
+    fig, axs = plt.subplots(nrows, ncols, figsize=(5,5))
+    for ax, img_t in zip((axs, imgs_t))
+        ax.imshow(img_t[..., :3].detach().cpu().numpy())
+        ax.axis("off")
+    
+    return fig, axs
 
 def plot_losses(losses):
-    _, ax = plt.subplots(1, 1, figsize=(10,10))
+    fig, ax = plt.subplots(1, 1, figsize=(5,5))
     sns.lineplot(data=losses, x="pass", y="loss", ax=ax)
-    ax.set_title("Distance Between Image and Prompt Embeddings")
     ax.set_xlabel("pass number")
-    ax.set_ylabel("distance")
-    return ax
+    ax.set_ylabel("loss")
+    return fig, ax
+
+###########################
+# Plotters for Latex
+###########################
+
+__RC_PARAMS = {
+        "pgf.texsystem": "pdflatex",
+        'font.family': 'serif',
+        'text.usetex': True,
+        'pgf.rcfonts': False,
+    }
+
+def save_for_latex(fig, filename):
+    with mpl.rc_context(__RC_PARAMS):
+        mpl.use("pgf")
+        fig.savefig(filename)
 
 ###########################
 # Info
