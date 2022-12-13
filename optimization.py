@@ -108,6 +108,8 @@ class OptimEnv:
         
         # optimizaiton loop
         for n in range(1, n_passes+1):
+            if(n%100==0):
+                print('number of passes is: '+ n_passes)
             # optimization steps: forward pass + zero_grad + backward pass + optimizer step
             loss = self.forward(pose, shape)
             self.backward(loss)
