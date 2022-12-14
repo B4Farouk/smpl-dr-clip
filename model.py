@@ -33,5 +33,5 @@ class SimpledCLIPContext:
         self.__renderer = renderer
         self.__clip = clip
         
-    def create(self,  prompt):
+    def get_model(self,  prompt):
         return compose(self.__smpl, self.__renderer, self.__clip, prompt=prompt)

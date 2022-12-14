@@ -19,7 +19,7 @@ def cos_dist(u, v):
 ###########################
 
 def plot_image_t(img_t):
-    fig, ax = plt.subplots(1, 1, figsize=(5,5))
+    fig, ax = plt.subplots(1, 1, figsize=(10, 10))
     ax.imshow(img_t[..., :3].detach().cpu().numpy())
     ax.axis("off")
     return fig, ax
@@ -28,7 +28,7 @@ def plot_images_t(imgs_t, n, ncols):
     nrows = n // ncols
     nrows += int(n - ncols * nrows > 0)
 
-    fig, axs = plt.subplots(nrows, ncols, figsize=(5,5))
+    fig, axs = plt.subplots(nrows, ncols, figsize=(10, 10))
     for ax, img_t in zip(axs, imgs_t):
         ax.imshow(img_t[..., :3].detach().cpu().numpy())
         ax.axis("off")
@@ -36,10 +36,15 @@ def plot_images_t(imgs_t, n, ncols):
     return fig, axs
 
 def plot_losses(losses):
-    fig, ax = plt.subplots(1, 1, figsize=(5,5))
+    fig, ax = plt.subplots(1, 1, figsize=(10, 5))
     sns.lineplot(data=losses, x="pass", y="loss", ax=ax)
     ax.set_xlabel("pass number")
     ax.set_ylabel("loss")
+    return fig, ax
+
+def plot_heatmap(array):
+    fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+    sns.heatmap(array, linewidth=0.5, ax=ax)
     return fig, ax
 
 ###########################
