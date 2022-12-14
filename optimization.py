@@ -12,98 +12,87 @@ from torch.nn.functional import cosine_similarity
 import pandas as pd
 
 def init_weights(device):
-    pose  = torch.zeros((1, 72), requires_grad=True, device=device) # theta
-    shape = torch.ones((1, 10), requires_grad=True, device=device) # beta
+    pose  = torch.zeros((1, 72), requires_grad=True, device=device) 
+    shape = torch.ones((1, 10), requires_grad=True, device=device)
     return pose, shape
 
-class OptimEnv:
+class TrackerConfig:
+    def __init__(self, **kwargs):
+        # pose
+        self.track_pose = kwargs.get("track_pose", True)
+        self.pose_freq  = kwargs.get("pose_freq", 100)
+        # shape
+        self.track_shape = kwargs.get("track_shape", True)
+        self.shape_freq  = kwargs.get("shape_freq", 100)
+        # loss
+        self.track_loss = kwargs.get("track_loss", True)
+        self.loss_freq  = kwargs.get("loss_freq", 10)
+
+class OptimConfig:
     __DEFAULT_MULTI_IMAGE_LOSS_MODE = "average-loss-on-embeddings"
+    __DEFAULT_LOSS_FN = lambda u, v: 1 - cosine_similarity(u, v, dim=1, eps=1e-8)
     
-    def __init__(self, model, weights, activate_lr_sch, config={}):
+    def __init__(self, **kwargs):
+        # optimizer params
+        self.lr = kwargs.get("lr", 1e-3)
+        self.betas = kwargs.get("beras", (0.9, 0.999))
+        # LR scheduler params
+        self.use_sch = kwargs.get("use_sch", False)
+        self.sch_freq = kwargs.get("sch_freq", 1)
+        self.sch_factor = kwargs.get("sch_factor", 0.5)
+        self.sch_min_lr = kwargs.get("sch_min_lr", 5*1e-5)
+        self.sch_threshold = kwargs.get("sch_threshold", 1e-3)
+        self.sch_patience = kwargs.get("sch_patience", 10)
+        self.sch_cooldown = kwargs.get("sch_cooldown", 0)
+        self.sch_verbose = kwargs.get("sch_verbose", False) 
+        # loss params
+        self.loss_mode = kwargs.get("loss_mode", OptimConfig.__DEFAULT_MULTI_IMAGE_LOSS_MODE)
+        self.loss_fn = kwargs.get("loss_fn", OptimConfig.__DEFAULT_LOSS_FN)
+
+class OptimEnv:
+    def __init__(self, model, weights, config):
         # model
         self.__model = model
-        
-        # loss function
-        self.__loss_fn = lambda u, v,: 1 - cosine_similarity(u, v, dim=1, eps=1e-8)
-        
+        # optim config
+        self.__config = config
         # optimizer
-        lr = config.get("lr", 1e-3)
-        betas = config.get("betas", (0.9, 0.999))
-        self.__optimizer = Adam(params=weights, lr=lr, betas=betas)
-        
-        # loss mode
-        self.__loss_mode = config.get("loss_mode", OptimEnv.__DEFAULT_MULTI_IMAGE_LOSS_MODE)
-        
-        # LR scheduler
-        self.__activate_lr_sch = activate_lr_sch
-        
-        sch_factor = config.get("sch_factor", 0.5)
-        sch_min_lr = config.get("sch_min_lr", 5*1e-5)
-        
-        sch_threshold = config.get("sch_threshold", 1e-3)
-        sch_patience = config.get("sch_patience", 10)
-        sch_cooldown = config.get("sch_cooldown", 0)
-        
-        sch_verbose = config.get("sch_verbose", False)
-        
-        if activate_lr_sch:
+        self.__optimizer = Adam(params=weights, lr=self.__config.lr, betas=self.__config.betas)
+        # scheduler
+        if self.__config.use_lr_sch:
             self.__lr_scheduler = ReduceLROnPlateau(
                 optimizer=self.__optimizer, 
                 mode="min",
-                factor=sch_factor,
-                min_lr=sch_min_lr,
-                threshold=sch_threshold,
-                
-                patience=sch_patience,
-                cooldown=sch_cooldown,
-                
-                verbose=sch_verbose)
+                factor=self.__config.sch_factor,
+                min_lr=self.__config.sch_min_lr,
+                threshold=self.__config.sch_threshold,
+                patience=self.__config.sch_patience,
+                cooldown=self.__config.sch_cooldown,
+                verbose=self.__config.sch_verbose)
         
-    def set_optimizer(self, optimizer):
-        self.__optimizer = optimizer
-        
-    def set_loss_fn(self, loss_fn):
-        self.__loss_fn = loss_fn
-    
-    def set_lr_scheduler(self, scheduler):
-        self.__lr_scheduler = scheduler
-    
     def forward(self, pose, shape):
         imgs_embs, pmt_emb = self.__model(pose, shape)
         
-        if self.__loss_mode == "loss-of-average-embedding":
-            loss = self.__loss_fn(imgs_embs.mean(axis=0, keepdims=True), pmt_emb)
-        elif self.__loss_mode == "average-loss-on-embeddings":
-            loss = self.__loss_fn(imgs_embs, pmt_emb).mean()
+        if self.__config.loss_mode == "loss-of-average-embedding":
+            loss = self.__config.loss_fn(imgs_embs.mean(axis=0, keepdims=True), pmt_emb)
+        elif self.__config.loss_mode == "average-loss-on-embeddings":
+            loss = self.__config.loss_fn(imgs_embs, pmt_emb).mean()
         else:
             raise ValueError("incorrect loss mode")
         
         return loss
         
     def backward(self, loss):
-        self.__optimizer.zero_grad()
         loss.backward(retain_graph=True)
         self.__optimizer.step()
+        self.__optimizer.zero_grad()
     
-    def optimize(self, pose, shape, n_passes=1000, tracker_config=None):
-        # get tracker settings
-        pose_tracker_config = tracker_config.get("pose", None)
-        shape_tracker_config = tracker_config.get("shape", None)
-        loss_tracker_config = tracker_config.get("loss", None)
-        
-        track_loss = loss_tracker_config is not None
-        if track_loss:
-            loss_interleaving = loss_tracker_config.get("interleaving", 50)
+    def optimize(self, pose, shape, n_passes=1000, trackerconfig=None):
+        # tracker dataframes
+        if trackerconfig.track_loss:
             intermediate_losses = pd.DataFrame(columns=["pass", "loss"])
-            
-        track_pose = pose_tracker_config is not None
-        if track_pose:
-            pose_interleaving = pose_tracker_config.get("interleaving", 100)
+        if trackerconfig.track_pose:
             intermediate_poses = pd.DataFrame(columns=["pass", "pose"])
-        
-        track_shape = shape_tracker_config is not None
-        if track_shape:
-            shape_interleaving = pose_tracker_config.get("interleaving", 100)
+        if trackerconfig.track_shape:
             intermediate_shapes = pd.DataFrame(columns=["pass", "shape"])
         
         # optimizaiton loop
@@ -111,18 +100,17 @@ class OptimEnv:
             # optimization steps: forward pass + zero_grad + backward pass + optimizer step
             loss = self.forward(pose, shape)
             self.backward(loss)
-            if self.__activate_lr_sch:
-                # LR scheduler update after each iteration, seems to be the right to do with the current schedueler: ReduceLROnPlateau  
+            # LR scheduler step
+            if self.__config.use_lr_sch and (n % self.__config.sch_freq == 0):
                 self.__lr_scheduler.step(metrics=loss)
-                          
             # loss tracking
-            if track_loss and n % loss_interleaving == 0:
+            if trackerconfig.track_loss and (n % trackerconfig.loss_freq == 0):
                 intermediate_losses.loc[len(intermediate_losses)] = {"pass": n, "loss": loss.item()}
             # pose tracking
-            if track_pose and n % pose_interleaving == 0:
+            if trackerconfig.track_pose and (n % trackerconfig.pose_freq == 0):
                 intermediate_poses.loc[len(intermediate_poses)] = {"pass": n, "pose": pose.cpu().detach()}
             # shape tracking
-            if track_shape and n % shape_interleaving == 0:
+            if trackerconfig.track_shape and n % trackerconfig.shape_freq == 0:
                 intermediate_shapes.loc[len(intermediate_shapes)] = {"pass": n, "shape": shape.cpu().detach()}
         
         # if tracker_config is None: result["tracked"] is None
@@ -131,10 +119,10 @@ class OptimEnv:
         result = {
             "params": {"pose": pose, "shape": shape},
             "tracked": {
-                "losses": intermediate_losses if track_loss else None, 
-                "poses": intermediate_poses if track_pose else None,
-                "shapes": intermediate_shapes if track_shape else None
-                } if tracker_config is not None else None
+                "losses": intermediate_losses if trackerconfig.track_loss else None, 
+                "poses": intermediate_poses if trackerconfig.track_pose else None,
+                "shapes": intermediate_shapes if trackerconfig.track_shape else None
+                } if trackerconfig is not None else None
         }
         
         return result
