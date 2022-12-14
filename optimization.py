@@ -58,7 +58,7 @@ class OptimEnv:
         # optimizer
         self.__optimizer = Adam(params=weights, lr=self.__config.lr, betas=self.__config.betas)
         # scheduler
-        if self.__config.use_lr_sch:
+        if self.__config.use_sch:
             self.__lr_scheduler = ReduceLROnPlateau(
                 optimizer=self.__optimizer, 
                 mode="min",
