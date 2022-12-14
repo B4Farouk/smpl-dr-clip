@@ -72,7 +72,7 @@ class OptimEnv:
     def forward(self, pose, shape):
         imgs_embs, pmt_emb = self.__model(pose, shape)
         
-        if self.__config.loss_mode == "loss-of-average-embedding":
+        if self.__config.loss_mode == "loss-on-average-embedding":
             loss = self.__config.loss_fn(imgs_embs.mean(axis=0, keepdims=True), pmt_emb)
         elif self.__config.loss_mode == "average-loss-on-embeddings":
             loss = self.__config.loss_fn(imgs_embs, pmt_emb).mean()
