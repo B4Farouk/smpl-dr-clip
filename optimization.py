@@ -101,7 +101,7 @@ class OptimEnv:
             loss = self.forward(pose, shape)
             self.backward(loss)
             # LR scheduler step
-            if self.__config.use_lr_sch and (n % self.__config.sch_freq == 0):
+            if self.__config.use_sch and (n % self.__config.sch_freq == 0):
                 self.__lr_scheduler.step(metrics=loss)
             # loss tracking
             if trackerconfig.track_loss and (n % trackerconfig.loss_freq == 0):
