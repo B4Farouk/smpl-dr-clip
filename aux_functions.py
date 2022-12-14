@@ -44,7 +44,7 @@ def plot_losses(losses):
 
 def plot_heatmap(array):
     fig, ax = plt.subplots(1, 1, figsize=(10, 10))
-    sns.heatmap(array, linewidth=0.5, ax=ax)
+    sns.heatmap(array, linewidth=0.5, ax=ax, cmap="viridis")
     return fig, ax
 
 ###########################
