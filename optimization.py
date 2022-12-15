@@ -88,10 +88,19 @@ class OptimEnv:
         
     def backward(self, loss):
         loss.backward(retain_graph=True)
+        
+    def opti_step(self):
         self.__optimizer.step()
         self.__optimizer.zero_grad()
-    
-    def optimize(self, pose, shape, n_passes=1000, trackerconfig=None):
+        
+    @staticmethod
+    def coorddesc_gradmask(pose):
+        gradmask = torch.zeros_like(pose)
+        joint_id = torch.randint(low=0, high=71, size=(1,1)).item()
+        gradmask[:, joint_id*3:(joint_id+1)*3] = 1
+        return gradmask
+        
+    def optimize(self, pose, shape, n_passes=1000, trackerconfig=None, coorddesc=False, gradmask=None):
         # tracker dataframes
         if trackerconfig.track_loss:
             intermediate_losses = pd.DataFrame(columns=["pass", "loss"])
@@ -102,9 +111,16 @@ class OptimEnv:
         
         # optimizaiton loop
         for n in range(1, n_passes+1):
-            # optimization steps: forward pass + zero_grad + backward pass + optimizer step
+            # foward + backward passes
             loss = self.forward(pose, shape)
             self.backward(loss)
+            # nullify the gradient of unoptimized coordinates
+            if gradmask is not None:
+                pose.grad *= gradmask
+            elif coorddesc:
+                pose.grad *= OptimEnv.coorddesc_gradmask(pose)
+            # optimizer step
+            self.opti_step()
             # LR scheduler step
             if self.__config.use_sch and (n % self.__config.sch_freq == 0):
                 self.__lr_scheduler.step(metrics=loss)
