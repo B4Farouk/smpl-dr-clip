@@ -16,7 +16,7 @@ class CLIPwrapper:
         self.__model, _ = clip.load(model_name)
         self.__model.to(self.__device)
         # switch to evaluation mode
-        self.__model.train()
+        self.__model.eval()
         
     def eval(self):
         self.__model.eval()
