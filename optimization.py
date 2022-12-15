@@ -16,6 +16,11 @@ def init_weights(device):
     shape = torch.ones((1, 10), requires_grad=True, device=device)
     return pose, shape
 
+def init_random_weights(device):
+    pose  = torch.zeros((1, 72), requires_grad=True, device=device)-0.5 
+    shape = torch.ones((1, 10), requires_grad=True, device=device)
+    return pose, shape
+
 class TrackerConfig:
     def __init__(self, **kwargs):
         # pose
