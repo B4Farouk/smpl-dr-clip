@@ -17,12 +17,6 @@ class CLIPwrapper:
         self.__model.to(self.__device)
         # switch to evaluation mode
         self.__model.eval()
-        
-    def eval(self):
-        self.__model.eval()
-    
-    def train(self):
-        self.__model.train()
 
     ###################
     # IMAGE FUNCTIONS
