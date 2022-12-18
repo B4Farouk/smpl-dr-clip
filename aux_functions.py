@@ -55,7 +55,7 @@ def plot_heatmap(array):
 ###########################
 
 __RC_PARAMS = {
-        "pgf.texsystem": "pdflatex",
+        "pgf.texsystem": "pgflatex",
         "text.usetex": True,
         "font.family": "serif",
         "pgf.rcfonts": False
