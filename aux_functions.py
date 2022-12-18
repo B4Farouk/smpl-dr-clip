@@ -62,12 +62,12 @@ __RC_PARAMS = {
         "pgf.rcfonts": False
     }
 
-def save_for_latex(fig, filename, backend="pgf"):
+def save_for_latex(fig, filename, bbox_inches="tight", backend="pgf"):
     if backend == "pgf":
         with mpl.rc_context(__RC_PARAMS):
-            fig.savefig(filename+".pgf", backend="pgf", dpi=400)
+            fig.savefig(filename+".pgf", backend="pgf", dpi=400, bbox_inches=bbox_inches)
     else:
-        fig.savefig(filename+"png", dpi=400)
+        fig.savefig(filename+"png", dpi=400, bbox_inches=bbox_inches)
 
 ###########################
 # Info
