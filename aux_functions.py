@@ -29,18 +29,21 @@ def plot_images_t(imgs_t, n, ncols):
     nrows += int(n - ncols * nrows > 0)
 
     fig, axs = plt.subplots(nrows, ncols, figsize=(10, 10))
+    
     for ax, img_t in zip(axs, imgs_t):
         ax.imshow(img_t[..., :3].detach().cpu().numpy())
         ax.axis("off")
     
     return fig, axs
 
-def plot_losses(losses):
+def plot_losses(losses_list):
     fig, ax = plt.subplots(1, 1, figsize=(10, 5))
-    sns.lineplot(data=losses, x="pass", y="loss", ax=ax)
-    ax.set_xlabel("pass number")
-    ax.set_ylabel("loss")
-    return fig, ax
+    
+    for losses in losses_list:
+        sns.lineplot(data=losses, x="pass", y="loss", ax=ax)
+        ax.set_xlabel("pass number")
+        ax.set_ylabel("loss")
+        return fig, ax
 
 def plot_heatmap(array):
     fig, ax = plt.subplots(1, 1, figsize=(10, 10))
@@ -53,14 +56,14 @@ def plot_heatmap(array):
 
 __RC_PARAMS = {
         "pgf.texsystem": "pdflatex",
-        'font.family': 'serif',
-        'text.usetex': True,
-        'pgf.rcfonts': False,
+        "text.usetex": True,
+        "font.family": "serif",
+        "pgf.rcfonts": False
     }
 
 def save_for_latex(fig, filename):
     with mpl.rc_context(__RC_PARAMS):
-        fig.savefig(filename, dpi=400)
+        fig.savefig(filename, backend="pgf", dpi=400)
 
 ###########################
 # Info
