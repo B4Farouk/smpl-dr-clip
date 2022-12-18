@@ -74,7 +74,7 @@ class OptimEnv:
                 cooldown=self.__config.sch_cooldown,
                 verbose=self.__config.sch_verbose)
         
-    def forward(self, pose, shape):
+    def _forward(self, pose, shape):
         imgs_embs, pmt_emb = self.__model(pose, shape)
         
         if self.__config.loss_mode == "loss-on-average-embedding":
@@ -86,15 +86,15 @@ class OptimEnv:
         
         return loss
         
-    def backward(self, loss):
+    def _backward(self, loss):
         loss.backward(retain_graph=True)
         
-    def opti_step(self):
+    def _opti_step(self):
         self.__optimizer.step()
         self.__optimizer.zero_grad()
         
     @staticmethod
-    def coorddesc_gradmask(pose):
+    def _coorddesc_gradmask(pose):
         gradmask = torch.zeros_like(pose)
         joint_id = torch.randint(low=0, high=71, size=(1,1)).item()
         gradmask[:, joint_id*3:(joint_id+1)*3] = 1
@@ -112,15 +112,15 @@ class OptimEnv:
         # optimizaiton loop
         for n in range(1, n_passes+1):
             # foward + backward passes
-            loss = self.forward(pose, shape)
-            self.backward(loss)
+            loss = self._forward(pose, shape)
+            self._backward(loss)
             # nullify the gradient of unoptimized coordinates
             if gradmask is not None:
                 pose.grad *= gradmask
             elif coorddesc:
-                pose.grad *= OptimEnv.coorddesc_gradmask(pose)
+                pose.grad *= OptimEnv._coorddesc_gradmask(pose)
             # optimizer step
-            self.opti_step()
+            self._opti_step()
             # LR scheduler step
             if self.__config.use_sch and (n % self.__config.sch_freq == 0):
                 self.__lr_scheduler.step(metrics=loss)
