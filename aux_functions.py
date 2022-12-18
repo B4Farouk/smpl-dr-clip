@@ -36,14 +36,15 @@ def plot_images_t(imgs_t, n, ncols):
     
     return fig, axs
 
-def plot_losses(losses_list):
+def plot_losses(losses_list, labels_list, colors_list):
     fig, ax = plt.subplots(1, 1, figsize=(10, 5))
     
-    for losses in losses_list:
-        sns.lineplot(data=losses, x="pass", y="loss", ax=ax)
-        ax.set_xlabel("pass number")
-        ax.set_ylabel("loss")
-        return fig, ax
+    for losses, label, color in zip(losses_list, labels_list, colors_list):
+        sns.lineplot(data=losses, x="pass", y="loss", ax=ax, label=label, color=color)
+    ax.set_xlabel("pass number")
+    ax.set_ylabel("loss")
+    ax.legend()
+    return fig, ax
 
 def plot_heatmap(array):
     fig, ax = plt.subplots(1, 1, figsize=(10, 10))
