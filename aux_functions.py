@@ -60,8 +60,7 @@ __RC_PARAMS = {
 
 def save_for_latex(fig, filename):
     with mpl.rc_context(__RC_PARAMS):
-        mpl.use("pgf")
-        fig.savefig(filename)
+        fig.savefig(filename, backend="pgf", dpi=400)
 
 ###########################
 # Info
