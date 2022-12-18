@@ -55,7 +55,7 @@ def plot_heatmap(array):
 ###########################
 
 __RC_PARAMS = {
-        "pgf.texsystem": "pgflatex",
+        "pgf.texsystem": "pdflatex",
         "text.usetex": True,
         "font.family": "serif",
         "pgf.rcfonts": False
@@ -63,7 +63,7 @@ __RC_PARAMS = {
 
 def save_for_latex(fig, filename):
     with mpl.rc_context(__RC_PARAMS):
-        fig.savefig(filename, backend="pgf", dpi=400)
+        fig.savefig(filename+".pgf", backend="pgf", dpi=400)
 
 ###########################
 # Info
