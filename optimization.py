@@ -25,10 +25,10 @@ class TrackerConfig:
     def __init__(self, **kwargs):
         # pose
         self.track_pose = kwargs.get("track_pose", True)
-        self.pose_freq  = kwargs.get("pose_freq", 100)
+        self.pose_freq  = kwargs.get("pose_freq", 10)
         # shape
         self.track_shape = kwargs.get("track_shape", True)
-        self.shape_freq  = kwargs.get("shape_freq", 100)
+        self.shape_freq  = kwargs.get("shape_freq", 10)
         # loss
         self.track_loss = kwargs.get("track_loss", True)
         self.loss_freq  = kwargs.get("loss_freq", 10)
@@ -40,7 +40,7 @@ class OptimConfig:
     def __init__(self, **kwargs):
         # optimizer params
         self.lr = kwargs.get("lr", 1e-3)
-        self.betas = kwargs.get("beras", (0.9, 0.999))
+        self.betas = kwargs.get("betas", (0.9, 0.999))
         # LR scheduler params
         self.use_sch = kwargs.get("use_sch", False)
         self.sch_freq = kwargs.get("sch_freq", 1)
@@ -48,14 +48,14 @@ class OptimConfig:
         self.sch_min_lr = kwargs.get("sch_min_lr", 5*1e-5)
         self.sch_threshold = kwargs.get("sch_threshold", 1e-3)
         self.sch_patience = kwargs.get("sch_patience", 10)
-        self.sch_cooldown = kwargs.get("sch_cooldown", 0)
+        self.sch_cooldown = kwargs.get("sch_cooldown", 100)
         self.sch_verbose = kwargs.get("sch_verbose", False) 
         # loss params
         self.loss_mode = kwargs.get("loss_mode", OptimConfig.__DEFAULT_MULTI_IMAGE_LOSS_MODE)
         self.loss_fn = kwargs.get("loss_fn", OptimConfig.__DEFAULT_LOSS_FN)
 
 class OptimEnv:
-    def __init__(self, model, weights, config):
+    def __init__(self, model, weights, config: OptimConfig):
         # model
         self.__model = model
         # optim config
@@ -100,7 +100,7 @@ class OptimEnv:
         gradmask[:, joint_id*3:(joint_id+1)*3] = 1
         return gradmask
         
-    def optimize(self, pose, shape, n_passes=1000, trackerconfig=None, coorddesc=False, gradmask=None):
+    def optimize(self, pose, shape, n_passes=1000, coorddesc=False, gradmask=None, trackerconfig: TrackerConfig = None):
         # tracker dataframes
         if trackerconfig.track_loss:
             intermediate_losses = pd.DataFrame(columns=["pass", "loss"])
