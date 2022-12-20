@@ -88,6 +88,14 @@ class CLIPwrapper:
         prompt_tk = self.tokenize(prompt)
         return self.tk_emb(prompt_tk)
     
+    ###################
+    # MULTIPLE PROMPTS FUNCTIONS
+    ###################    
+    
+    def pmts_emb(self, prompts):
+        prompts_tk = self.tokenize(prompt for prompt in prompts)
+        return self.tk_emb(prompt_tk for prompt_tk in prompts_tk)
+    
     #####################################################
     # IMAGE/IMAGE, PROMPT/PROMPT, IMAGE/PROMPT FUNCTIONS
     #####################################################    
