@@ -61,4 +61,4 @@ channels_normalization: z_score{mean=(0.48145466, 0.4578275, 0.40821073), varian
 optimizer: Adam, lr= $10^{-3}$, betas= $(0.9, 0.999)$
 
 ### LR Scheduler
-We tried to use a ReduceOnPlateau learning rate scheduler without success, 
+We tried to use a ReduceOnPlateau learning rate scheduler without success. The default parameters are specified within the OptimConfig class of optimizaiton.py.
