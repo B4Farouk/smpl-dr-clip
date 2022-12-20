@@ -3,6 +3,16 @@
 """
 
 def compose(smpl, renderer, clip, **params):
+    """_summary_
+
+    Args:
+        smpl (_type_): _description_
+        renderer (_type_): _description_
+        clip (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     # the prompt as a hyperparameter
     prompt = params["prompt"]
     
