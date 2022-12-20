@@ -64,6 +64,15 @@ class TexturesFactory:
         return textures
     
     def from_image(self,colored_reference_SMPL,verts,faces):
+        """
+        Creates a texture from a trimesh,vertices and faces.
+        Args:
+            colored_reference_SMPL: Trimesh object from trimesh
+            verts: lists of vertices
+            faces: lists of faces
+        Returns:
+            A texture
+        """
         random_SMPL = trimesh.Trimesh(verts[0].detach().to(torch.device("cpu")), faces.detach().to(torch.device("cpu")), process=False)
         random_SMPL.visual.vertex_colors = colored_reference_SMPL.visual.vertex_colors
         texture = torch.from_numpy(
