@@ -1,4 +1,3 @@
-import kaolin as kal
 import torch
 import utils
 from utils import device
