@@ -2,8 +2,6 @@
     This module abstracts away the implementation details of the differentiable renderer
     used in this project.
 """
-# useful link: https://pytorch3d.org/docs/renderer_getting_started
-
 import numpy as np
 
 from pytorch3d.renderer import (
@@ -16,15 +14,6 @@ from pytorch3d.renderer import (
     MeshRenderer, 
     
     HardFlatShader,
-    SoftPhongShader,
-
-    PointLights, 
-    DirectionalLights,
-    Materials,
-    
-    TexturesAtlas,
-    TexturesUV,
-    TexturesVertex
 )
     
 class CamerasFactory:
@@ -32,10 +21,6 @@ class CamerasFactory:
     Factory class for Cameras
     """
     def __init__(self, device):
-        """
-        Args:
-            device: device used by the cameras
-        """
         self.__device = device
         
     def fov_persp_scs(self, coords, fov, frustrum_depth, degrees: bool =True):
@@ -117,14 +102,7 @@ class Renderer:
         self.__shader = shader if shader is not None \
             else HardFlatShader(
                 device = device, 
-                cameras = cameras, 
-                #lights = PointLights(
-                #    ambient_color = (0.5, 0.5, 0.5),
-                #    diffuse_color = (1, 1, 1),
-                #    specular_color = (1, 1, 1),
-                #    location = (0, 1, 0),
-                #   device = device
-                #   ),
+                cameras = cameras,
                 lights = None,
                 materials = None,
                 blend_params = None
@@ -141,6 +119,6 @@ class Renderer:
             meshes: meshes to be rendered.
 
         Returns:
-            (Image): the resulting images.
+            The resulting images.
         """
         return self.__renderer(meshes)
