@@ -35,7 +35,7 @@ def init_random_weights(device):
     Returns:
         pose tensor, shape tensor
     """
-    pose  = torch.rand((1, 72), requires_grad=True, device=device)-0.5 
+    pose  = (torch.rand((1, 72), requires_grad=True, device=device)-0.5)*0.2 
     shape = torch.ones((1, 10), requires_grad=True, device=device)
     return pose, shape
 
