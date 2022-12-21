@@ -62,3 +62,7 @@ optimizer: Adam, lr= $10^{-3}$, betas= $(0.9, 0.999)$
 
 ### LR Scheduler
 We tried to use a ReduceOnPlateau learning rate scheduler without success. The default parameters are specified within the OptimConfig class of optimizaiton.py.
+
+## Loss
+### Inner Product Loss
+$\lambda = 10^{-3}$
